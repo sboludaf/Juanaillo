@@ -1,0 +1,4 @@
+interface:
+  display_name: "Encoders y ruedas H60"
+  short_description: "Calibra ruedas y comprueba ensayos motrices limitados"
+  default_prompt: "Usa $h60-wheels para comprobar el sentido de las cuatro ruedas de mi H60."

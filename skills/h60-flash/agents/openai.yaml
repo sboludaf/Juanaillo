@@ -1,0 +1,4 @@
+interface:
+  display_name: "Compilación y carga H60"
+  short_description: "Compila y carga firmware con verificación completa"
+  default_prompt: "Usa $h60-flash para preparar una carga revisable del firmware de mi H60."

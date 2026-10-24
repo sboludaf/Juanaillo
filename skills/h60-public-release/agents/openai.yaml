@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publicación pública H60"
+  short_description: "Revisa privacidad y procedencia antes de publicar"
+  default_prompt: "Usa $h60-public-release para revisar qué archivos de este proyecto pueden publicarse."

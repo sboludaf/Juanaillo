@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "board": "OpenCTR H60 V3.7",
+  "chassis": "R5 four-wheel differential",
+  "wheel_diameter_mm": 65,
+  "effective_track_mm": null,
+  "encoder_counts_per_wheel_turn": [
+    1561,
+    1561,
+    1561,
+    1561
+  ],
+  "encoder_sign": [
+    -1,
+    1,
+    -1,
+    1
+  ],
+  "motor_sign": [
+    1,
+    -1,
+    1,
+    -1
+  ],
+  "wheel_side": [
+    2,
+    1,
+    2,
+    1
+  ],
+  "max_linear_mm_s": null,
+  "max_angular_mrad_s": null,
+  "max_linear_accel_mm_s2": null,
+  "max_angular_accel_mrad_s2": null,
+  "max_pwm": null,
+  "battery_full_scale_mv": null,
+  "imu_axis_map": 1,
+  "kp": null,
+  "ki": null,
+  "kd": null,
+  "confirmations": {
+    "board_and_routing": false,
+    "encoder_counts_and_polarities": true,
+    "motor_sides_and_polarities": true,
+    "geometry_and_limits": false,
+    "sensor_mount_and_voltage": false
+  }
+}

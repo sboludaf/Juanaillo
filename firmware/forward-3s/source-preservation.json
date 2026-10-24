@@ -1,0 +1,16 @@
+{
+  "schema": "h60.source-preservation.v1",
+  "profile": 4,
+  "marker": "H60_FORWARD3S_SINGLE_SHOT_V1",
+  "functional_sources_preserved_byte_for_byte": {
+    "src/main.c": "b2d4bdfbd624fb14d6399972363c5bfe63678f5aa3ad9cad5a102b36fd97f387",
+    "src/pulse.c": "be3d36b8b909ea278de6076cc3479f839536a0719540184bdad5ef90fa3be155",
+    "src/runtime.c": "f3ffe4ea383876d01d77d56f55257bd444e893216055877f041afde130bf60b0",
+    "include/pulse.h": "46bad5f8ed7710507972da59e0800b27b169d752eb0c7d7cda9847c989d56993",
+    "tests/test_pulse.c": "272e51e1d32e1b16ca1e3c684e9d5def666f2ced64b0465bf7871026328473a7"
+  },
+  "tested_candidate_payload_sha256": "8fc79c5214a0521d9351b803d8b5353a81b6df3d0bfbb7280648b7aac7fa5feb",
+  "tested_candidate_payload_bytes": 7132,
+  "portable_rebuild_matches_tested_candidate": true,
+  "note": "Evidence for this source migration only; not a per-device flash authorization. Rebuild and review a fresh manifest before loading any board."
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Puesta en marcha H60"
+  short_description: "Identifica placa, puertos y respaldo verificable"
+  default_prompt: "Usa $h60-bringup para identificar mi H60 y preparar su respaldo sin mover motores."

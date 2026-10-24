@@ -1,0 +1,42 @@
+# Private machine/board data and credentials
+.local/
+private/
+backups/
+runs/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+secrets*.json
+# Imported manufacturer sources and generated artifacts
+**/vendor/
+**/build/
+**/build-*/
+*.bin
+*.hex
+*.elf
+*.map
+*.o
+*.d
+*.su
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.jpg
+*.jpeg
+*.png
+# Python and editor state
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.vscode/
+.idea/
+.DS_Store
