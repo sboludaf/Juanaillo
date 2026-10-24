@@ -1,6 +1,6 @@
-# OpenCTR H60 Lab
+# Juanaillo
 
-Practical, Spanish-first documentation and portable tooling for the **OpenCTR H60 V3.7, STM32F407VET6**, tested on Linux with a four-wheel R5 chassis. No Chinese-language knowledge is required to follow the documented workflow.
+Juanaillo provides practical, Spanish-first documentation and portable tooling for the **OpenCTR H60 V3.7, STM32F407VET6**, with future autonomous driving as its goal. It has been tested on Linux with a four-wheel R5 chassis. No Chinese-language knowledge is required to follow the documented workflow.
 
 This is a foundation for future **autonomous driving**, rather than a finished navigation stack. It provides USB bootloader access, verified backups, limited flashing, encoder calibration, and a single-shot three-second forward bench test with heartbeat timeout and STOP.
 

@@ -1,6 +1,6 @@
-# OpenCTR H60 Lab
+# Juanaillo
 
-Herramientas y documentación en español para empezar a trabajar con una **OpenCTR H60 V3.7 / STM32F407VET6** desde Linux por USB, sin depender de leer los tutoriales originales en chino.
+Juanaillo reúne herramientas y documentación en español para empezar a trabajar con una **OpenCTR H60 V3.7 / STM32F407VET6** desde Linux por USB y avanzar hacia la conducción autónoma, sin depender de leer los tutoriales originales en chino.
 
 El objetivo del proyecto es servir de base para **conducción autónoma**. Actualmente cubre identificación, recuperación, respaldo, carga controlada, calibración de encoders y una prueba de avance de cuatro ruedas de 3 segundos. La navegación autónoma, el control de velocidad calibrado y la odometría completa siguen pendientes.
 
