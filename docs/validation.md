@@ -29,3 +29,20 @@ Los artefactos de build, fuentes importadas, dumps y registros privados se manti
 - Se preparó un plan local para modificar solo el sector 0, tomando como baseline el readback completo verificado del perfil 5. El dry-run verifica imagen, fuentes, artefactos y baseline sin abrir el puerto. Es un baseline procedente de una lectura anterior, no dos lecturas nuevas.
 - Tras el encendido confirmado por el operador, se ejecutó ese plan: comparación viva completa, escritura solo del sector 0 y readback de 512 KiB idéntico a lo esperado, conservando sectores 1–7. SHA256 completo: `640605cd84df3b0978b4776867524c0042d1f875dc76074ef1fa00494be5bd4f`.
 - Se comprobó el arranque del perfil 6, su descriptor, conexión real, WebSocket autenticado y STOP/IDLE. No se envió MOVE; la verificación física de giros sigue pendiente y no se atribuyen al nuevo perfil las pruebas motrices reales del anterior.
+
+## Pulsaciones simultáneas
+
+- El navegador registra todos los dedos, punteros y teclas. Un segundo control detiene el gesto; una liberación parcial o heartbeat anterior no lo reanuda. Para volver a mover deben soltarse todos los controles y recibirse la confirmación de STOP y un estado de reposo antes de una pulsación nueva.
+- El backend trata un solapamiento válido como parada recuperable y conserva WebSocket y propietario. Direcciones inválidas, secuencias repetidas y fallos reales del firmware siguen siendo errores. Se conservan motivo y código del FAULT para diagnosticarlo antes de reiniciar.
+- Las 35 pruebas web comprueban conflicto, liberación, continuación sin reconectar, cancelación mientras STOP está pendiente, rechazo de mensajes inválidos y registro de FAULT sin nonce. Con el resto de suites hay 94 pruebas Python.
+- Playwright Chromium, solo contra simulación, comprueba dos dedos reales (opuestos y sobre el mismo botón), dos teclas, entradas mixtas, liberación parcial y tercer control, cancelación, pérdida de captura, modificadores, estado desactualizado y límite de 10 s. Cada recuperación exige liberación y pulsación nueva; no se reanuda por heartbeat ni repetición de tecla.
+
+## Corrección del origen temporal de wake
+
+La versión anterior programaba PWM a partir del tick entero leído antes de activar físicamente GPIO11 y exigía después una ventana de 4–5 ms por DWT. Una sección crítica que cruzase un tick pendiente o el coste de configurar los temporizadores podía producir un FAULT falso en los bordes. La corrección mide desde después de GPIO11 y DSB, califica PWM por tiempo real dentro de 4–6 ms y comprueba el plazo de nuevo antes de habilitar los temporizadores. El parser y los ticks enteros no habilitan PWM.
+
+Los once grupos nativos incluyen 1000 fases de tick, cuatro costes de sección crítica, siete costes de configuración, wrap de DWT, bordes de 4/6 ms y un ciclo fuera de plazo. STOP, lease de 150 ms y límite absoluto de 10 s conservan prioridad. BIN y HEX se reconstruyeron idénticos; el BIN corregido ocupa 7444 bytes y tiene SHA256 `2f742d7f3f479d744e8ded4b70657313c9477230b02d565ea1c0082b5e0898a2`.
+
+El defecto temporal se comprobó mediante código y pruebas de fase. No se conoce el motivo concreto del FAULT que motivó la revisión, porque el servidor anterior no lo conservaba antes del reinicio. El diagnóstico nuevo registra ese motivo; no borra ni rearma automáticamente un fallo real.
+
+La imagen corregida se instaló comparando primero los 512 KiB vivos con el readback anterior y verificando después toda la Flash, con sectores 1–7 intactos. SHA256 completo: `a07f171eff058c03dbeb66c3a2e3a2cf90c5070666681cf9bfc9f9873f681546`. El arranque fue una operación separada. Se verificaron descriptor, WebSocket autenticado y STOP/IDLE reales; la sesión solo envió INFO, STATUS y STOP, sin MOVE.

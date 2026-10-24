@@ -8,6 +8,13 @@ from .serial_client import DIRECTION_NAMES, DIRECTION_VALUES, DeviceError, Stale
 
 BROWSER_LEASE = .250
 MOVE_PERIOD = .050
+FIRMWARE_REASONS = {
+    0: "Arranque", 1: "Parada solicitada", 3: "Movimiento solicitado",
+    4: "Límite de 10 segundos", 5: "Lease del firmware vencido",
+    6: "Trama inválida", 7: "Nonce incorrecto", 8: "Dirección inválida",
+    10: "Plazo de control excedido", 11: "Verificación de hardware fallida",
+    12: "Generador aleatorio no disponible",
+}
 
 
 class ControlError(RuntimeError):
@@ -59,10 +66,18 @@ class Controller:
                 if self.held and not self.release_required:
                     self.deadline = self.clock() + BROWSER_LEASE
             elif kind == "hold":
-                direction = DIRECTION_VALUES.get(message.get("direction"))
-                if direction is None or self.held or self.release_required:
-                    self._cancel("invalid_hold", require_release=True)
-                    raise ControlError("Suelta el control antes de iniciar otro movimiento.")
+                name = message.get("direction")
+                direction = DIRECTION_VALUES.get(name) if isinstance(name, str) else None
+                if direction is None:
+                    self._cancel("invalid_direction", require_release=True)
+                    raise ControlError("Dirección de movimiento no válida.")
+                if self.error or self.device.get("state") == "fault":
+                    raise ControlError("El controlador requiere revisar el fallo antes de moverse.")
+                if self.release_required:
+                    return  # Further valid presses/HBs cannot revive a blocked gesture.
+                if self.held:
+                    self._cancel("input_conflict", require_release=True)
+                    return  # Recoverable input conflict, not a device/protocol fault.
                 pending_stop = self.stop_done != self.stop_epoch
                 if (not self.connected or self.error
                         or self.device.get("state") not in ("idle", "wake", "running", "limit")
@@ -107,7 +122,10 @@ class Controller:
                 self.generation += 1
                 self.stop_reason = "burst_limit"
             elif device["state"] == "fault":
-                self.fail("El firmware informa FAULT; requiere revisión y reinicio deliberado.")
+                reason = device.get("reason")
+                meaning = FIRMWARE_REASONS.get(reason, "motivo no disponible")
+                self.fail(f"El firmware informa FAULT (motivo {reason}: {meaning}); "
+                          "requiere revisión y reinicio deliberado.")
 
     def fail(self, message):
         with self.lock:
@@ -134,6 +152,8 @@ class Controller:
                     "burst_remaining_ms": self.device.get("burst_remaining_ms", 0),
                     "firmware_lease_ms": self.device.get("firmware_lease_ms", 0), "browser_lease_ms": 250,
                     "duty_percent": 10, "encoders": self.device.get("encoders", [0, 0, 0, 0]),
+                    "firmware_reason": self.device.get("reason"),
+                    "firmware_reason_text": FIRMWARE_REASONS.get(self.device.get("reason")),
                     "error": self.error, "stop_reason": self.stop_reason}
 
 

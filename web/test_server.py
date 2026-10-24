@@ -75,11 +75,47 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
         await asyncio.sleep(.08)
         self.assertEqual(len(self.device.move_calls), count)
 
-    async def test_two_simultaneous_turn_intents_stop_instead_of_switching(self):
+    async def test_conflict_keeps_websocket_and_owner_until_release_then_new_hold(self):
+        ws, _ = await self.connect()
+        owner = self.app[CONTROLLER].owner
+        await ws.send_json({"type": "hold", "direction": "left", "seq": 1})
+        await self.wait_for(lambda: self.device.direction == 2)
+        await ws.send_json({"type": "hold", "direction": "right", "seq": 2})
+        await self.wait_for(lambda: self.device.state == "idle")
+        snapshot = self.app[CONTROLLER].snapshot(owner)
+        self.assertEqual(self.app[CONTROLLER].owner, owner)
+        self.assertTrue(snapshot["controller"])
+        self.assertTrue(snapshot["release_required"])
+        self.assertEqual(snapshot["stop_reason"], "input_conflict")
+        self.assertIsNone(snapshot["error"])
+        self.assertEqual(snapshot["firmware_reason"], 1)  # STOP ACK, not firmware FAULT.
+        self.assertFalse(snapshot["stop_pending"])
+        self.assertFalse(ws.closed)
+        count = len(self.device.move_calls)
+        await ws.send_json({"type": "heartbeat", "seq": 3})
+        await ws.send_json({"type": "hold", "direction": "forward", "seq": 4})
+        while True:
+            message = await asyncio.wait_for(ws.receive_json(), 1)
+            self.assertNotEqual(message["type"], "error")
+            if message.get("type") == "ack" and message.get("seq") == 4:
+                break
+        await asyncio.sleep(.08)
+        self.assertEqual(len(self.device.move_calls), count)
+        self.assertFalse(any(value == -2 for _, value in self.device.move_calls))
+        await ws.send_json({"type": "stop", "seq": 5})
+        await ws.send_json({"type": "hold", "direction": "right", "seq": 6})
+        await self.wait_for(lambda: self.app[CONTROLLER].snapshot()["direction"] == "right")
+        self.assertEqual(self.device.move_calls[-1][1], -2)
+        self.assertEqual(self.app[CONTROLLER].owner, owner)
+        await ws.send_json({"type": "stop", "seq": 7})
+        await self.wait_for(lambda: self.device.state == "idle")
+
+    async def test_invalid_direction_after_conflict_still_closes_and_stops(self):
         ws, _ = await self.connect()
         await ws.send_json({"type": "hold", "direction": "left", "seq": 1})
         await self.wait_for(lambda: self.device.direction == 2)
         await ws.send_json({"type": "hold", "direction": "right", "seq": 2})
+        await ws.send_json({"type": "hold", "direction": "diagonal", "seq": 3})
         await self.wait_for(lambda: self.app[CONTROLLER].owner is None)
         await self.wait_for(lambda: self.device.state == "idle")
         self.assertFalse(any(value == -2 for _, value in self.device.move_calls))

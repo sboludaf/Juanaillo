@@ -21,6 +21,12 @@
   let ready = false;
   let sequence = 0;
   let owner = null;
+  const heldInputs = new Map();
+  const releaseMessage = "Suelta todos los controles para continuar";
+  let releaseLatch = false;
+  let releaseHint = releaseMessage;
+  let stopPending = 0;
+  let stopAccepted = false;
   let heartbeat = null;
   let lastStatusAt = 0;
   let reconnect = null;
@@ -30,7 +36,7 @@
     if (!socket || socket.readyState !== WebSocket.OPEN || !authenticated) return false;
     try {
       socket.send(JSON.stringify({ type, seq: ++sequence, ...fields }));
-      return true;
+      return sequence;
     } catch {
       authenticated = false;
       disconnect("Conexión interrumpida");
@@ -40,8 +46,9 @@
 
   function renderControls() {
     for (const button of buttons) {
-      // Keep a physically held control listening for its release after LIMIT.
-      button.disabled = !ready && !(owner?.awaitingRelease && owner.direction === button.dataset.direction);
+      // All held pointers must still deliver their release while motion is blocked.
+      button.disabled = !ready && heldInputs.size === 0;
+      button.setAttribute("aria-disabled", String(!ready || releaseLatch));
       button.setAttribute("aria-pressed", String(owner?.direction === button.dataset.direction));
     }
   }
@@ -57,23 +64,31 @@
     clearInterval(heartbeat);
     heartbeat = null;
     // STOP is idempotent; also send it for blur/hidden with no current owner.
-    send("stop");
-    if (previous && ready) motionStatus.textContent = "Parando…";
+    const stopSeq = send("stop");
+    if (stopSeq) {
+      stopPending = stopSeq;
+      stopAccepted = false;
+      ready = false;
+    }
+    if (previous && !releaseLatch) motionStatus.textContent = "Parando…";
     renderControls();
   }
 
   function disconnect(message) {
+    if (heldInputs.size) releaseLatch = true;
     stop();
     ready = false;
     authenticated = false;
+    stopPending = 0;
+    stopAccepted = false;
     setConnection("Sin conexión", "offline");
     motionStatus.textContent = message;
     renderControls();
   }
 
-  function hold(direction, kind, id) {
-    if (owner || !ready || !authenticated || document.hidden) return;
-    owner = { direction, kind, id };
+  function hold(direction, kind, id, token) {
+    if (owner || releaseLatch || !ready || !authenticated || document.hidden) return;
+    owner = { direction, kind, id, token };
     if (!send("hold", { direction })) {
       stop();
       return;
@@ -89,27 +104,88 @@
     }, 50);
   }
 
+  function blockUntilReleased() {
+    releaseLatch = true;
+    releaseHint = releaseMessage;
+    stop();
+    motionStatus.textContent = releaseHint;
+  }
+
+  function beginInput(token, direction, kind, id) {
+    const existing = heldInputs.get(token);
+    if (existing) {
+      if (existing.direction !== direction) blockUntilReleased();
+      return;
+    }
+    heldInputs.set(token, { direction, kind, id });
+    if (releaseLatch || heldInputs.size > 1) {
+      blockUntilReleased();
+    } else if (!ready || !authenticated || document.hidden) {
+      releaseLatch = true;
+      releaseHint = releaseMessage;
+      renderControls();
+    } else {
+      hold(direction, kind, id, token);
+    }
+  }
+
+  function endInput(token) {
+    if (!heldInputs.has(token)) return;
+    const wasOwner = owner?.token === token;
+    heldInputs.delete(token);
+    if (heldInputs.size === 0) {
+      const needsRelease = releaseLatch;
+      releaseLatch = false;
+      if (wasOwner || needsRelease) stop();
+      else renderControls();
+    } else if (wasOwner) {
+      blockUntilReleased();
+    } else {
+      renderControls();
+      if (releaseLatch) motionStatus.textContent = releaseHint;
+    }
+  }
+
+  function cancelAllInputs() {
+    heldInputs.clear();
+    releaseLatch = false;
+    stop();
+  }
+
   function applyStatus(status) {
     lastStatusAt = performance.now();
     // Only an explicit fresh backend-ready status may enable motion.
-    ready = authenticated && status.controller === true && status.connected === true &&
+    const deviceReady = authenticated && status.controller === true && status.connected === true &&
       status.ready === true && !status.release_required && !status.error;
+    // WS ACK accepts STOP; this later idle snapshot confirms the device replied.
+    if (stopPending && stopAccepted && deviceReady && status.stop_pending === false &&
+        status.state === "idle" && status.held === false && status.moving === false) {
+      stopPending = 0;
+      stopAccepted = false;
+    }
+    ready = deviceReady && !stopPending;
     if (status.release_required || status.state === "limit") {
       clearInterval(heartbeat);
       heartbeat = null;
-      if (owner) owner.awaitingRelease = true;
+      owner = null;
+      releaseLatch = true;
+      releaseHint = status.stop_reason === "input_conflict" ? releaseMessage
+        : status.state === "limit" ? "Límite alcanzado · suelta y vuelve a pulsar" : releaseMessage;
     } else if (!ready && owner) {
+      releaseLatch = heldInputs.size > 0;
       stop();
     }
+    if (deviceReady && !status.release_required && heldInputs.size === 0) releaseLatch = false;
     const simulated = status.simulated === true;
     if (ready) {
       setConnection(simulated ? "Simulador conectado" : "H60 conectada", "ready");
-      if (!owner) motionStatus.textContent = status.moving === true ? "Parando…" : "Listo · motores parados";
+      if (releaseLatch) motionStatus.textContent = releaseHint;
+      else if (!owner) motionStatus.textContent = status.moving === true ? "Parando…" : "Listo · motores parados";
     } else {
       const device = simulated ? "Simulador" : "H60";
       setConnection(status.connected === true ? `${device} no disponible` : `${device} desconectada`, "waiting");
-      motionStatus.textContent = status.error || (status.state === "limit" || status.release_required
-        ? "Límite alcanzado · suelta y vuelve a pulsar"
+      motionStatus.textContent = status.error || (releaseLatch
+        ? releaseHint
         : "Esperando al controlador · movimiento deshabilitado");
     }
     renderControls();
@@ -149,6 +225,8 @@
           motionStatus.textContent = "El enlace no permite controlar esta sesión.";
           renderControls();
         }
+      } else if (data.type === "ack" && data.action === "stop" && data.seq === stopPending) {
+        stopAccepted = true;
       } else if (data.type === "status") {
         applyStatus(data);
       } else if (data.type === "error") {
@@ -174,23 +252,24 @@
     button.addEventListener("pointerdown", (event) => {
       if (event.button !== 0) return;
       event.preventDefault();
-      if (owner || !ready) return;
-      hold(button.dataset.direction, "pointer", event.pointerId);
-      if (owner?.kind === "pointer" && owner.id === event.pointerId) {
-        try { button.setPointerCapture(event.pointerId); } catch { stop(); }
-      }
+      beginInput(`pointer:${event.pointerId}`, button.dataset.direction, "pointer", event.pointerId);
+      try { button.setPointerCapture(event.pointerId); } catch { blockUntilReleased(); }
     });
-    for (const type of ["pointerup", "pointercancel", "lostpointercapture", "pointerleave"]) {
+    for (const type of ["lostpointercapture", "pointerleave"]) {
       button.addEventListener(type, (event) => {
-        if (owner?.kind === "pointer" && owner.id === event.pointerId) stop();
+        // Capture loss/leave is not a physical release; global up/cancel ends it.
+        if (heldInputs.has(`pointer:${event.pointerId}`)) blockUntilReleased();
       });
     }
     button.addEventListener("contextmenu", (event) => event.preventDefault());
     button.addEventListener("dragstart", (event) => event.preventDefault());
     button.addEventListener("blur", () => {
       if (owner?.kind === "keyboard" && ["Space", "Enter"].includes(owner.id) &&
-          owner.direction === button.dataset.direction) stop();
+          owner.direction === button.dataset.direction) blockUntilReleased();
     });
+  }
+  for (const type of ["pointerup", "pointercancel"]) {
+    window.addEventListener(type, (event) => endInput(`pointer:${event.pointerId}`), true);
   }
 
   function keyDirection(event) {
@@ -203,35 +282,39 @@
     return null;
   }
   window.addEventListener("keydown", (event) => {
+    const direction = keyDirection(event);
+    const token = `key:${event.code}`;
     // Browser shortcuts such as Ctrl+A/Ctrl+S must never start a motor command.
     if (event.ctrlKey || event.metaKey || event.altKey) {
-      if (owner) stop();
+      if (direction && !event.repeat) heldInputs.set(token, { direction, kind: "keyboard", id: event.code });
+      if (owner) blockUntilReleased();
+      else if (heldInputs.size) {
+        releaseLatch = true;
+        releaseHint = releaseMessage;
+        renderControls();
+      }
       return;
     }
-    const direction = keyDirection(event);
     if (!direction) return;
     event.preventDefault();
-    if (!event.repeat) hold(direction, "keyboard", event.code);
+    if (!event.repeat) beginInput(token, direction, "keyboard", event.code);
   });
   window.addEventListener("keyup", (event) => {
-    if (owner?.kind === "keyboard" && owner.id === event.code) {
-      event.preventDefault();
-      stop();
-    }
+    endInput(`key:${event.code}`);
   });
-  window.addEventListener("blur", stop);
-  document.addEventListener("visibilitychange", () => { if (document.hidden) stop(); });
-  window.addEventListener("beforeunload", stop);
+  window.addEventListener("blur", cancelAllInputs);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) cancelAllInputs(); });
+  window.addEventListener("beforeunload", cancelAllInputs);
   window.addEventListener("pagehide", () => {
     leaving = true;
     clearTimeout(reconnect);
-    stop();
+    cancelAllInputs();
     socket?.close();
   });
   // A frozen/stale status stream cannot keep browser commands alive.
   setInterval(() => {
     if (ready && performance.now() - lastStatusAt > 1000) {
-      stop();
+      blockUntilReleased();
       ready = false;
       setConnection("Sin respuesta", "error");
       motionStatus.textContent = "Estado desactualizado · movimiento deshabilitado";

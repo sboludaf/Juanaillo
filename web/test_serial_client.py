@@ -47,6 +47,24 @@ class Wire:
 
 
 class SerialClientTests(unittest.TestCase):
+    def test_firmware_fault_is_logged_once_without_nonce(self):
+        class MemoryJournal:
+            def __init__(self):
+                self.events = []
+            def event(self, name, **fields):
+                self.events.append((name, fields))
+        wire = Wire(); wire.journal = MemoryJournal()
+        client = ManualClient(wire)
+        payload = struct.pack(STATUS_FORMAT, 1, PROFILE, 4, 9, 123, 0, 12345,
+                              0, 0, 0, 0, 1, 5, 0, 0)
+        self.assertEqual(client._status(payload)["reason"], 5)
+        client._status(payload)
+        self.assertEqual(len(wire.journal.events), 1)
+        name, fields = wire.journal.events[0]
+        self.assertEqual((name, fields["reason"], fields["state"], fields["flags"]),
+                         ("firmware_fault", 5, "fault", 9))
+        self.assertNotIn("nonce", fields)
+
     def test_turn_contract_caps_and_signed_wire_directions(self):
         self.assertEqual(len(MARKER), 28)
         self.assertEqual(len(CAPS_BYTES), 48)
@@ -105,6 +123,12 @@ class SerialClientTests(unittest.TestCase):
             self.assertEqual(verify_manifest(path, sha256(path.read_bytes()))["profile"], 6)
             self.assertEqual(manifest["left_raw_directions"], [1, 1, 1, 1])
             self.assertEqual(manifest["right_raw_directions"], [-1, -1, -1, -1])
+            for required in ("wake_max_ms", "wake_scheduler"):
+                incomplete = dict(manifest)
+                del incomplete[required]
+                path.write_text(json.dumps(incomplete))
+                with self.subTest(missing=required), self.assertRaises(DeviceError):
+                    verify_manifest(path, sha256(path.read_bytes()))
             manifest["profile"] = 5; path.write_text(json.dumps(manifest))
             with self.assertRaisesRegex(DeviceError, "perfil 6"):
                 verify_manifest(path, sha256(path.read_bytes()))

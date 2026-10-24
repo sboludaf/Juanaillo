@@ -92,3 +92,11 @@ a6367b446f48201e441a4d5518bab7f93f5a3578410357b708ccea7ad6e4e282
 Esta ampliación se preparó con la placa apagada. Después de que el operador la encendiera, se compararon los 512 KiB vivos con el readback previo del perfil 5, se modificó solo el sector 0 y se verificó la Flash completa. SHA256 posterior: `640605cd84df3b0978b4776867524c0042d1f875dc76074ef1fa00494be5bd4f`. Los sectores 1–7 quedaron conservados.
 
 Se arrancó el perfil 6 y se comprobó la conexión real por USB-DEBUG, descriptor, estado IDLE, WebSocket autenticado y STOP. La sesión solo transmitió INFO, STATUS y STOP; no se enviaron órdenes MOVE. Los giros siguen pendientes de ensayo motriz: la evidencia real del perfil 5 anterior no valida por sí sola los giros ni el comportamiento en suelo.
+
+## Corrección de pulsaciones simultáneas y sincronización
+
+Las entradas simultáneas ahora provocan STOP recuperable, conservan la sesión y exigen soltar todos los controles antes de una pulsación nueva. Las pruebas de navegador se hicieron solo en simulación con dos dedos reales, teclado y combinaciones de entrada; no se enviaron movimientos reales para esa comprobación.
+
+Se corrigió además un defecto de sincronización de wake: el origen físico se captura después de GPIO11/DSB y la activación PWM se califica por DWT dentro de 4–6 ms, con lease y duración absoluta intactos. Once grupos nativos comprueban fases de tick y costes de configuración; véase [validación](validation.md). No se pudo determinar el motivo exacto del FAULT que originó esta revisión, porque el servidor anterior no lo conservó antes del reinicio.
+
+El BIN corregido de 7444 bytes, SHA256 `2f742d7f3f479d744e8ded4b70657313c9477230b02d565ea1c0082b5e0898a2`, se cargó tras comparación completa con la imagen anterior. Se modificó solo el sector 0 y el readback completo coincidió con `a07f171eff058c03dbeb66c3a2e3a2cf90c5070666681cf9bfc9f9873f681546`; sectores 1–7 conservados. Se verificaron arranque, conexión real, WebSocket autenticado y STOP/IDLE sin MOVE. Esto no acredita una medición eléctrica ni un nuevo ensayo motriz.

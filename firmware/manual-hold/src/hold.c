@@ -50,14 +50,25 @@ uint8_t hold_tick(Hold *p,uint32_t now,bool burst_finished)
         if((uint32_t)(now-p->burst_ms)>=HOLD_BURST_MS || burst_finished) {
             p->state=H_LIMIT;p->reason=R_LIMIT;p->direction=0;return E_OFF;
         }
-        /* Five integer ticks after a between-ticks request mean 4..5 ms real.
-           The hardware also checks the DWT elapsed time before starting PWM. */
-        if(p->state==H_WAKE && (uint32_t)(now-p->wake_ms)>=HOLD_WAKE_MS+1u) {
-            if((uint32_t)(now-p->wake_ms)>HOLD_WAKE_MS+1u)return hold_fault(p,R_LATE);
-            p->state=H_RUNNING;return E_PWM;
-        }
     }
+    /* Integer ticks enforce lease/burst only. The parser must NEVER emit PWM
+       from wake_ms: GPIO11 starts later, possibly across a pending SysTick. */
     return E_NONE;
+}
+uint8_t hold_wake_phase(uint32_t elapsed_cycles,uint32_t cycles_per_ms)
+{
+    if(!cycles_per_ms || cycles_per_ms>UINT32_MAX/HOLD_WAKE_MAX_MS)return W_EXPIRED;
+    if(elapsed_cycles<HOLD_WAKE_MS*cycles_per_ms)return W_WAIT;
+    if(elapsed_cycles>HOLD_WAKE_MAX_MS*cycles_per_ms)return W_EXPIRED;
+    return W_READY;
+}
+uint8_t hold_qualify_wake(Hold *p,uint32_t elapsed_cycles,uint32_t cycles_per_ms)
+{
+    if(p->state!=H_WAKE)return E_NONE;
+    uint8_t phase=hold_wake_phase(elapsed_cycles,cycles_per_ms);
+    if(phase==W_EXPIRED)return hold_fault(p,R_LATE);
+    if(phase==W_WAIT)return E_NONE;
+    p->state=H_RUNNING;return E_PWM;
 }
 static uint8_t stop(Hold *p)
 {

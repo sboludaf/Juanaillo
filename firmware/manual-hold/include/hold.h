@@ -11,6 +11,7 @@
 #define HOLD_LEASE_MS 150u
 #define HOLD_BURST_MS 10000u
 #define HOLD_WAKE_MS 4u
+#define HOLD_WAKE_MAX_MS 6u
 #define HOLD_DUTY_PERMILLE 100u
 #define HOLD_PWM_HZ 5000u
 #define HOLD_TIMER_TICKS 4200u
@@ -22,6 +23,7 @@ enum { R_BOOT=0, R_STOP=1, R_MOVE=3, R_LIMIT=4, R_LEASE=5,
        R_HARDWARE=11, R_RNG=12 };
 enum { E_NONE=0, E_OFF=1, E_WAKE=2, E_PWM=4, E_REPLY=16,
        E_ENCODERS=32, E_CAPS=64 };
+enum { W_WAIT, W_READY, W_EXPIRED };
 typedef struct {
     uint8_t state, reason, reply_id;
     int8_t direction;
@@ -37,6 +39,8 @@ void hold_init(Hold *state, uint64_t nonce, uint32_t now);
 void hold_observe(Hold *state, const uint16_t counts[4]);
 uint8_t hold_fault(Hold *state, uint8_t reason);
 uint8_t hold_tick(Hold *state, uint32_t now, bool burst_finished);
+uint8_t hold_wake_phase(uint32_t elapsed_cycles, uint32_t cycles_per_ms);
+uint8_t hold_qualify_wake(Hold *state, uint32_t elapsed_cycles, uint32_t cycles_per_ms);
 uint8_t hold_feed(Hold *state, uint8_t byte, uint32_t now);
 void hold_status(const Hold *state, uint32_t now, bool all_low, uint8_t out[44]);
 void hold_caps(uint8_t out[48]);

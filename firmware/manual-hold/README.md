@@ -22,8 +22,14 @@ C=TIM9CH1/2 on PE5/6 and D=TIM12CH1/2 on PB14/15.
 Turning left means the right wheels move forward and the left wheels backward;
 right is the opposite, for the documented R5 channel assignment. Every start
 or reversal disables all PWM timers and drives all bridge inputs00 before a
-brake/wake11 phase of at least4ms. The hardware DWT guard accepts4..5ms before
-enabling the new PWM; a missed timing window faults with outputs off.
+brake/wake11 phase of at least4ms. Its DWT origin is captured **after both
+GPIO11 writes and DSB**, so an interrupt pending during the motor-off operation
+cannot shorten that delay. The actual hardware service qualifies PWM from real
+DWT elapsed time, independently of the integer millisecond counter or parser.
+It accepts4..6ms, reserving margin for register configuration after a1ms polling
+interval; it checks that same real deadline again immediately before enabling
+PWM. A genuinely expired window faults with outputs off. Lease and absolute
+burst deadlines are checked before qualification and again before enabling PWM.
 
 Each valid MOVE refreshes a150ms lease. The absolute burst limit is10000ms from
 the first MOVE, including wake phases and reversals; repeated MOVE and direction
@@ -52,6 +58,13 @@ by Git. Select a toolchain with `CROSS_COMPILE`; optional `NEWLIB_INCLUDE` and
 `NEWLIB_LIB_DIR` support separately packaged newlib. No build or native test
 opens a serial port. A fresh `build/manifest.json` binds the local image and
 sources; loading it is a separate reviewed operation.
+
+The manifest records `wake_max_ms:6` and `wake_scheduler:"dwt-qualified"`.
+Native tests sweep all1000microsecond phases relative to SysTick, motor-off
+sections crossing a pending tick, DWT wrap and configuration costs through the
+6ms deadline. Integer-tick/parser calls cannot issue PWM. STOP, reversals and
+expired lease/burst checks retain priority over a pending qualification. The
+wire profile6,CAPS wake minimum4ms and command lengths remain unchanged.
 
 ## Wire contract
 

@@ -13,7 +13,7 @@ _Static_assert(HOLD_TIMER_TICKS==4200u && HOLD_DRIVE_TICKS==420u,"Fixed5kHz/10pe
 #define RX_COUNT 64u
 static Hold state;
 static volatile uint32_t milliseconds, last_isr_cycles;
-static volatile bool kill_latch, hardware_started;
+static volatile bool kill_latch, hardware_started, wake_armed;
 static volatile uint32_t wake_cycles,burst_cycles,hardware_burst_count;
 typedef struct { uint32_t arrival; uint8_t value; } Rx;
 static Rx rx[RX_COUNT];
@@ -44,7 +44,7 @@ static void motors_off(void)
     GPIOB->MODER=(GPIOB->MODER&~mode_mask(B_PINS))|out_mode(B_PINS);
     GPIOE->OTYPER&=~E_PINS;GPIOB->OTYPER&=~B_PINS;
     GPIOE->PUPDR&=~mode_mask(E_PINS);GPIOB->PUPDR&=~mode_mask(B_PINS);
-    hardware_started=false;__DSB();
+    hardware_started=false;wake_armed=false;__DSB();
 }
 static bool all_low(void)
 {
@@ -99,6 +99,17 @@ static bool burst_finished(void)
     return (state.state==H_WAKE || state.state==H_RUNNING) &&
         DWT->CYCCNT-burst_cycles>=HOLD_BURST_MS*(SystemCoreClock/1000u);
 }
+static uint8_t service(void)
+{
+    if(kill_latch)return E_OFF;
+    uint8_t event=hold_tick(&state,milliseconds,burst_finished());
+    if(event&E_OFF)return event;
+    if(state.state==H_WAKE) {
+        if(!wake_armed)return hold_fault(&state,R_HARDWARE);
+        event|=hold_qualify_wake(&state,DWT->CYCCNT-wake_cycles,SystemCoreClock/1000u);
+    }
+    return event;
+}
 static void apply(uint8_t event)
 {
     /* STOP, fault and expired deadlines always beat a simultaneous wake/PWM. */
@@ -114,19 +125,20 @@ static void apply(uint8_t event)
             burst_cycles=DWT->CYCCNT;hardware_burst_count=state.burst_count;
         }
         if(burst_finished()) { hold_tick(&state,milliseconds,true);motors_off();return; }
-        wake_cycles=DWT->CYCCNT;
         GPIOE->BSRRL=E_PINS;GPIOB->BSRRL=B_PINS; /* Four bridges11, no differential drive. */
+        __DSB();
+        /* Timestamp AFTER both writes complete. All bridges receive at least
+           four real milliseconds11, independent of the integer-tick phase. */
+        wake_cycles=DWT->CYCCNT;wake_armed=true;
         return; /* A new wake can never also apply an old E_PWM. */
     }
     if(event&E_PWM) {
-        uint32_t elapsed=DWT->CYCCNT-wake_cycles;
-        if(state.state!=H_RUNNING || hardware_started ||
+        if(state.state!=H_RUNNING || hardware_started || !wake_armed ||
            !hold_direction_valid(state.direction) ||
-           elapsed<HOLD_WAKE_MS*(SystemCoreClock/1000u) ||
-           elapsed>(HOLD_WAKE_MS+1u)*(SystemCoreClock/1000u)) {
+           hold_wake_phase(DWT->CYCCNT-wake_cycles,SystemCoreClock/1000u)!=W_READY) {
             kill_latch=true;hold_fault(&state,R_LATE);motors_off();return;
         }
-        if(burst_finished()) { hold_tick(&state,milliseconds,true);motors_off();return; }
+        if(hold_tick(&state,milliseconds,burst_finished())&E_OFF) { motors_off();return; }
         configure_pwm(hold_channel_compare(state.direction,0),hold_channel_compare(state.direction,1));
         configure_two_channel(TIM9,7,hold_channel_compare(state.direction,2));
         configure_two_channel(TIM12,3,hold_channel_compare(state.direction,3));
@@ -136,11 +148,11 @@ static void apply(uint8_t event)
         GPIOB->AFR[1]=(GPIOB->AFR[1]&~((15u<<24)|(15u<<28)))|(9u<<24)|(9u<<28);
         GPIOE->MODER=(GPIOE->MODER&~mode_mask(E_PINS))|(out_mode(E_PINS)<<1);
         GPIOB->MODER=(GPIOB->MODER&~mode_mask(B_PINS))|(out_mode(B_PINS)<<1);
-        if(DWT->CYCCNT-wake_cycles>(HOLD_WAKE_MS+1u)*(SystemCoreClock/1000u)) {
+        if(hold_tick(&state,milliseconds,burst_finished())&E_OFF) { motors_off();return; }
+        if(hold_wake_phase(DWT->CYCCNT-wake_cycles,SystemCoreClock/1000u)!=W_READY) {
             kill_latch=true;hold_fault(&state,R_LATE);motors_off();return;
         }
-        if(burst_finished()) { hold_tick(&state,milliseconds,true);motors_off();return; }
-        hardware_started=true;
+        hardware_started=true;wake_armed=false;
         TIM1->BDTR|=TIM_BDTR_MOE;TIM1->CR1|=TIM_CR1_CEN;
         TIM9->CR1|=TIM_CR1_CEN;TIM12->CR1|=TIM_CR1_CEN;__DSB();
     }
@@ -153,7 +165,7 @@ void SysTick_Handler(void)
     }
     last_isr_cycles=now_cycles;milliseconds++;
     uint16_t enc[4];counts(enc);hold_observe(&state,enc);
-    apply(hold_tick(&state,milliseconds,burst_finished()));
+    apply(service());
 }
 void USART1_IRQHandler(void)
 {
@@ -227,7 +239,7 @@ int main(void)
         if(kill_latch || DWT->CYCCNT-last_isr_cycles>3u*(SystemCoreClock/1000u)) {
             kill_latch=true;apply(hold_fault(&state,R_LATE));
         }
-        uint8_t event=hold_tick(&state,milliseconds,burst_finished());
+        uint8_t event=service();
         if(tail!=head) {
             Rx sample=rx[tail];tail=(uint8_t)((tail+1u)%RX_COUNT);
             if((uint32_t)(milliseconds-sample.arrival)>10u)event|=hold_fault(&state,R_FRAME);

@@ -35,6 +35,7 @@ record = {
     "left_raw_directions": [1, 1, 1, 1], "right_raw_directions": [-1, -1, -1, -1],
     "supported_directions": [1, -1, 2, -2], "duty_permille": 100, "pwm_hz": 5000,
     "lease_ms": 150, "max_burst_ms": 10000, "wake_min_ms": 4,
+    "wake_max_ms": 6, "wake_scheduler": "dwt-qualified",
     "absolute_envelope_us": 10000000, "one_fire_per_boot": False,
     "requires_stop_after_limit": True, "sticky_fault": True,
     "uart": 1, "uart_pins": ["PA9", "PA10"], "baudrate": 230400, "framing": "8N1",

@@ -8,6 +8,8 @@ Es una herramienta de diagnóstico para un chasis estable y ruedas elevadas, pre
 
 Necesita `firmware/manual-hold`, **perfil 6**. El perfil 5 anterior solo admitía avance/retroceso y debe actualizarse; el firmware de avance fijo de 3 s, perfil 4, tampoco acepta este protocolo. El backend exige el descriptor del perfil 6 antes de cualquier MOVE y no envía órdenes de giro a una versión anterior.
 
+El manifiesto del build actual también debe declarar `wake_scheduler=dwt-qualified` y `wake_max_ms=6`: corresponde a la corrección que mide el wake desde la activación física. Su contrato de bytes conserva el perfil 6; la revisión instalada se verifica mediante el plan y readback completos, además de CAPS.
+
 El mapa del R5 medido es A=trasera derecha, B=trasera izquierda, C=delantera derecha y D=delantera izquierda:
 
 | Botón | Valor MOVE | Sentidos eléctricos A/B/C/D | Movimiento físico |
@@ -20,6 +22,8 @@ El mapa del R5 medido es A=trasera derecha, B=trasera izquierda, C=delantera der
 Otras instalaciones deben comprobar su propio mapa. Al girar con cuatro ruedas fijas se produce deslizamiento lateral; el PWM común no garantiza una velocidad angular ni un ángulo concreto.
 
 Las flechas y WASD equivalen a los cuatro botones. Espacio o Enter actúan sobre el botón que tiene el foco. Los atajos con Ctrl, Meta o Alt no inician movimiento y detienen una pulsación vigente.
+
+Si se pulsan dos controles a la vez, el movimiento se detiene y aparece **«Suelta todos los controles para continuar»**. Hay que soltar todos los dedos y teclas y hacer una pulsación nueva; levantar solo uno no reanuda la primera orden. Esto también se aplica al combinar ratón y teclado o apoyar dos dedos sobre el mismo botón. El conflicto mantiene la conexión y no se trata como un fallo del dispositivo.
 
 El dispositivo caduca MOVE a 150 ms y limita un gesto a 10 s. El servidor renueva MOVE aproximadamente cada 50 ms solo mientras tiene una intención de navegador vigente; el navegador la renueva cada 50 ms y el servidor la caduca a 250 ms. El límite de 10 s no se extiende con heartbeats ni con cambios de dirección. Antes de cambiar el patrón de motores, el firmware corta todas las salidas y vuelve a realizar la espera de activación. STOP normal permite otra pulsación; FAULT requiere revisión y reinicio deliberado. Los cortes dependen del software/ISR/DWT, con IWDG de respaldo; no son mediciones eléctricas certificadas.
 
@@ -67,12 +71,15 @@ El servidor imprime un enlace con una clave efímera en el fragmento `#token=...
 - La clave queda en `.local/web/<sesión>/token.txt`, privada e ignorada por Git; nunca la copies a documentación, capturas públicas o URLs del remoto.
 - El navegador retira la clave de la barra y la conserva solo en memoria/sessionStorage. Recargar o reconectar no reanuda una pulsación vieja: hay que volver a mantener un botón.
 - El servidor no mantiene una cola de movimientos. La intención actual, su secuencia y su caducidad se comprueban justo antes de transmitir.
+- Un solapamiento válido recibido por WebSocket cancela la intención vigente y solicita STOP sin cerrar la sesión. Repetir HOLD o heartbeat no lo rearma; la liberación y una pulsación nueva deben preceder al siguiente movimiento, que espera la confirmación de STOP de la placa.
 - Cerrar normalmente el servidor intenta STOP y cierra la sesión. Una pérdida del proceso deja de renovar el lease del MCU.
 - La API de estado es de lectura; no existen endpoints HTTP GET/POST de movimiento o STOP. El control requiere WebSocket autenticado y Origin coincidente.
 
 El enlace mostrado permite controlar motores: compártelo únicamente con el operador previsto. La interfaz mantiene los controles deshabilitados si falta autenticación, conexión, estado válido o si hay un fallo.
 
 Si apagas la H60 con el servidor en marcha, el error serie queda bloqueado aunque vuelvas a encenderla o recargues la web. Con la placa encendida, reinicia explícitamente el servidor y abre el enlace nuevo que imprima: el reinicio cambia la clave y el enlace nuevo sustituye la anterior guardada en el navegador. Un ciclo de alimentación normal no requiere volver a cargar el firmware.
+
+Los fallos reales del firmware siguen bloqueando el movimiento. La API de estado conserva `firmware_reason` y su explicación, y el registro privado guarda un evento `firmware_fault` para diagnosticarlo antes de reiniciar. Un conflicto de pulsaciones y un FAULT de la placa son estados distintos.
 
 ## Pruebas
 

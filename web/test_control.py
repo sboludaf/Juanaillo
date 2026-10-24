@@ -68,8 +68,8 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(self.control.stop_epoch, prior_stop_epoch)  # No automatic STOP/re-arm.
         self.command("heartbeat", 2)
         self.assertEqual(self.control.action()[2], 0)
-        with self.assertRaises(ControlError):
-            self.command("hold", 3, direction="forward")
+        self.command("hold", 3, direction="forward")
+        self.assertEqual(self.control.action()[2], 0)
         self.command("stop", 4)
         self.command("hold", 5, direction="reverse")
         epoch, generation, direction = self.control.action()
@@ -102,14 +102,63 @@ class ControllerTests(unittest.TestCase):
             self.assertFalse(self.control.permit(generation, direction))
             self.control.stopped(self.control.stop_epoch); self.control.publish(status())
 
-    def test_simultaneous_intent_cancels_turn_and_cannot_replace_it(self):
+    def test_simultaneous_intent_stops_without_losing_owner_or_creating_fault(self):
         self.command("hold", 1, direction="left")
         _, generation, direction = self.control.action()
-        with self.assertRaises(ControlError):
-            self.command("hold", 2, direction="right")
+        self.command("hold", 2, direction="right")
         self.assertFalse(self.control.permit(generation, direction))
         self.assertEqual(self.control.action()[2], 0)
         self.assertTrue(self.control.release_required)
+        self.assertEqual(self.control.stop_reason, "input_conflict")
+        self.assertEqual(self.control.owner, "owner")
+        self.assertIsNone(self.control.error)
+        epoch = self.control.stop_epoch
+        self.command("heartbeat", 3)
+        self.command("hold", 4, direction="forward")
+        self.assertEqual(self.control.stop_epoch, epoch)
+        self.assertEqual(self.control.action()[2], 0)
+        self.control.stopped(epoch); self.control.publish(status())
+        self.assertFalse(self.control.snapshot("owner")["ready"])
+        self.command("stop", 5)
+        self.command("hold", 6, direction="right")
+        epoch, generation, direction = self.control.action()
+        self.assertFalse(self.control.permit(generation, direction))
+        self.control.stopped(epoch); self.control.publish(status())
+        self.assertTrue(self.control.permit(generation, -2))
+
+    def test_overlap_also_cancels_fresh_intent_waiting_for_stop_ack(self):
+        self.command("hold", 1, direction="forward")
+        self.control.publish(status("running", 1))
+        self.command("stop", 2)
+        prior_epoch = self.control.stop_epoch
+        self.command("hold", 3, direction="left")
+        _, generation, direction = self.control.action()
+        self.command("hold", 4, direction="right")
+        self.control.stopped(prior_epoch); self.control.publish(status())
+        self.assertFalse(self.control.permit(generation, direction))
+        self.assertEqual(self.control.action()[2], 0)
+        self.assertEqual(self.control.stop_reason, "input_conflict")
+
+    def test_invalid_directions_stay_strict_even_while_release_blocked(self):
+        self.command("hold", 1, direction="left")
+        self.command("hold", 2, direction="right")
+        for seq, invalid in enumerate(("diagonal", [], {}, None, 2), 3):
+            with self.subTest(direction=invalid), self.assertRaises(ControlError):
+                self.command("hold", seq, direction=invalid)
+        self.assertEqual(self.control.action()[2], 0)
+
+    def test_snapshot_preserves_actual_firmware_reason_for_fault_diagnosis(self):
+        self.assertIsNone(self.control.snapshot()["firmware_reason"])
+        self.control.publish({**status("fault"), "reason": 5})
+        snapshot = self.control.snapshot("owner")
+        self.assertEqual(snapshot["firmware_reason"], 5)
+        self.assertIn("Lease", snapshot["firmware_reason_text"])
+        self.assertEqual(snapshot["state"], "error")
+        self.assertIn("motivo 5", snapshot["error"])
+        self.assertIn("Lease", snapshot["error"])
+        self.command("stop", 1)
+        self.assertTrue(self.control.snapshot()["error"])
+        self.assertEqual(self.control.snapshot()["firmware_reason"], 5)
 
     def test_fault_is_not_cleared_by_stop_or_fresh_hold(self):
         self.control.publish(status("fault"))

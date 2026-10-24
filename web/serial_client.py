@@ -29,7 +29,8 @@ EXPECTED = {"target": "STM32F407VE", "profile": PROFILE, "marker": MARKER.decode
             "status_payload_bytes": 44, "move_payload_bytes": 9,
             "uart": 1, "uart_pins": ["PA9", "PA10"],
             "baudrate": 230400, "framing": "8N1", "duty_permille": 100, "pwm_hz": 5000,
-            "wake_min_ms": 4, "max_burst_ms": 10000, "lease_ms": 150, "caps_hex": CAPS_BYTES.hex()}
+            "wake_min_ms": 4, "wake_max_ms": 6, "wake_scheduler": "dwt-qualified",
+            "max_burst_ms": 10000, "lease_ms": 150, "caps_hex": CAPS_BYTES.hex()}
 
 
 class DeviceError(HostError):
@@ -129,6 +130,7 @@ class ManualClient:
     def __init__(self, transport, *, clock=time.monotonic):
         self.transport, self.clock = transport, clock
         self.nonce, self.verified, self.failed = None, False, False
+        self._fault_logged = False
 
     def _exchange(self, command, payload, length, *, permit=None, emergency=False):
         require(emergency or not self.failed, "Serial session is locked after an error.")
@@ -167,6 +169,14 @@ class ManualClient:
             require(reason in (0, 1, 3, 4, 5, 6, 7, 8, 10, 11, 12), "Unknown firmware reason.")
             if self.nonce is None:
                 self.nonce = nonce
+            if state == FAULT and not self._fault_logged:
+                self._fault_logged = True
+                journal = getattr(self.transport, "journal", None)
+                if journal is not None:
+                    journal.event("firmware_fault", state="fault", reason=reason, flags=flags,
+                                  uptime_ms=uptime, direction=direction, burst_count=bursts,
+                                  firmware_lease_ms=lease, burst_remaining_ms=remaining,
+                                  encoders=encoders)
             return {"state": STATE_NAMES[state], "state_id": state, "flags": flags,
                     "uptime_ms": uptime, "firmware_lease_ms": lease, "encoders": encoders,
                     "burst_count": bursts, "reason": reason, "direction_value": direction,
