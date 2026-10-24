@@ -4,7 +4,7 @@ from __future__ import annotations
 import threading
 import time
 
-from .serial_client import DeviceError, StaleHold
+from .serial_client import DIRECTION_NAMES, DIRECTION_VALUES, DeviceError, StaleHold
 
 BROWSER_LEASE = .250
 MOVE_PERIOD = .050
@@ -59,7 +59,7 @@ class Controller:
                 if self.held and not self.release_required:
                     self.deadline = self.clock() + BROWSER_LEASE
             elif kind == "hold":
-                direction = {"forward": 1, "reverse": -1}.get(message.get("direction"))
+                direction = DIRECTION_VALUES.get(message.get("direction"))
                 if direction is None or self.held or self.release_required:
                     self._cancel("invalid_hold", require_release=True)
                     raise ControlError("Suelta el control antes de iniciar otro movimiento.")
@@ -128,7 +128,7 @@ class Controller:
                     "ready": self._ready(), "controller": owner is not None and self.owner == owner,
                     "owner_connected": self.owner is not None, "state": state,
                     "moving": self.device.get("state") in ("wake", "running"),
-                    "direction": {1: "forward", -1: "reverse"}.get(value), "held": bool(self.held),
+                    "direction": DIRECTION_NAMES.get(value), "held": bool(self.held),
                     "release_required": self.release_required,
                     "stop_pending": self.stop_done != self.stop_epoch,
                     "burst_remaining_ms": self.device.get("burst_remaining_ms", 0),

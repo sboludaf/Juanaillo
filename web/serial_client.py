@@ -1,4 +1,4 @@
-"""Profile-5 wire client and simulation. No ROM, reset or automatic reconnect."""
+"""Profile-6 wire client and simulation. No ROM, reset or automatic reconnect."""
 from __future__ import annotations
 
 import importlib
@@ -9,17 +9,22 @@ import time
 
 from host.transport import HostError, disable_hupcl, sha256, valid_port
 
-PROFILE = 5
-MARKER = b"H60_MANUAL_HOLD_CONTROL_V1__"
-CAPS_BYTES = struct.pack(">BBBBHHHHII", 1, 5, 15, 10, 100, 5000, 4, 10000, 10000000, 150) + MARKER
+PROFILE = 6
+MARKER = b"H60_MANUAL_TURN_CONTROL_V1__"
+DIRECTION_VALUES = {"forward": 1, "reverse": -1, "left": 2, "right": -2}
+DIRECTION_NAMES = {value: name for name, value in DIRECTION_VALUES.items()}
+SUPPORTED_DIRECTIONS = tuple(DIRECTION_VALUES.values())
+CAPS_BYTES = struct.pack(">BBBBHHHHII", 1, PROFILE, 15, 10, 100, 5000, 4, 10000, 10000000, 150) + MARKER
 STATUS_FORMAT = ">BBBBIIQ4HIIiI"
 STATUS_BYTES = struct.calcsize(STATUS_FORMAT)
 IDLE, WAKE, RUNNING, LIMIT, FAULT = range(5)
 STATE_NAMES = ("idle", "wake", "running", "limit", "fault")
 STATUS, INFO, STOP, MOVE = 0x70, 0x76, 0x74, 0x77
-EXPECTED = {"target": "STM32F407VE", "profile": 5, "marker": MARKER.decode(),
+EXPECTED = {"target": "STM32F407VE", "profile": PROFILE, "marker": MARKER.decode(),
             "motor_capable": True, "fixed_motor_mask": 15, "fixed_reversed_mask": 10,
             "forward_raw_directions": [1, -1, 1, -1], "reverse_raw_directions": [-1, 1, -1, 1],
+            "supported_directions": [1, -1, 2, -2],
+            "left_raw_directions": [1, 1, 1, 1], "right_raw_directions": [-1, -1, -1, -1],
             "requires_stop_after_limit": True, "sticky_fault": True,
             "status_payload_bytes": 44, "move_payload_bytes": 9,
             "uart": 1, "uart_pins": ["PA9", "PA10"],
@@ -48,7 +53,7 @@ def verify_manifest(path, digest):
     require(sha256(raw) == digest, "Manifest SHA256 mismatch.")
     manifest = json.loads(raw)
     require(all(type(manifest.get(k)) is type(v) and manifest.get(k) == v for k, v in EXPECTED.items()),
-            "Manifest does not describe the fixed profile-5 manual controller.")
+            "Manifiesto incompatible: se requiere perfil 6 con giros; actualiza el firmware. Perfil 5 no compatible.")
     root, binaries = path.parent.parent, []
     artifacts, sources = manifest.get("artifacts"), manifest.get("sources")
     require(isinstance(artifacts, dict) and len(artifacts) == 4
@@ -149,9 +154,10 @@ class ManualClient:
         version, profile, state, flags, uptime, lease, nonce = values[:7]
         encoders, bursts, reason, direction, remaining = list(values[7:11]), *values[11:]
         try:
-            require(version == 1 and profile == PROFILE and state in range(5), "Unexpected firmware profile/state.")
+            require(version == 1 and profile == PROFILE and state in range(5),
+                    "Firmware incompatible: perfil 6 requerido; actualiza el firmware. No se envía MOVE.")
             require(nonce != 0 and (self.nonce is None or self.nonce == nonce), "Firmware reset/nonce changed.")
-            require(direction in (-1, 0, 1) and 0 <= lease <= 150 and 0 <= remaining <= 10000,
+            require(direction in (0, *SUPPORTED_DIRECTIONS) and 0 <= lease <= 150 and 0 <= remaining <= 10000,
                     "Inconsistent firmware limits.")
             active = state in (WAKE, RUNNING)
             require(flags == (7 if active else 9) and (direction != 0) == active,
@@ -170,7 +176,8 @@ class ManualClient:
             raise
 
     def identify(self):
-        require(self._exchange(INFO, b"", 48) == CAPS_BYTES, "Wrong manual-hold firmware descriptor.")
+        require(self._exchange(INFO, b"", 48) == CAPS_BYTES,
+                "Firmware incompatible: perfil 6 con giros requerido; actualiza el firmware. No se envía MOVE.")
         status = self.status()
         self.verified = True
         return status
@@ -179,7 +186,8 @@ class ManualClient:
         return self._status(self._exchange(STATUS, b"", STATUS_BYTES))
 
     def move(self, direction, *, permit=None):
-        require(self.verified and self.nonce is not None and type(direction) is int and direction in (-1, 1),
+        require(self.verified and self.nonce is not None and type(direction) is int
+                and direction in SUPPORTED_DIRECTIONS,
                 "MOVE requires a verified session and fixed direction.")
         return self._status(self._exchange(MOVE, struct.pack(">Qb", self.nonce, direction), STATUS_BYTES,
                                           permit=permit))
@@ -195,7 +203,7 @@ class SimulatedDevice:
     """The same lease/limit behavior, without importing or opening serial."""
     def __init__(self, *, clock=time.monotonic):
         self.clock, self.boot_at = clock, clock()
-        self.state, self.direction, self.started, self.last_move = "idle", 0, 0.0, 0.0
+        self.state, self.direction, self.started, self.last_move, self.wake_at = "idle", 0, 0.0, 0.0, 0.0
         self.bursts, self.closed, self.move_calls, self.stop_calls = 0, False, [], 0
 
     def _tick(self):
@@ -205,7 +213,7 @@ class SimulatedDevice:
                 self.state, self.direction = "fault", 0
             elif now - self.started >= 10.0:
                 self.state, self.direction = "limit", 0
-            elif now - self.started >= .005:
+            elif now - self.wake_at >= .005:
                 self.state = "running"
 
     def identify(self):
@@ -218,18 +226,21 @@ class SimulatedDevice:
                 "direction_value": self.direction, "uptime_ms": int((self.clock() - self.boot_at) * 1000),
                 "firmware_lease_ms": max(1, int((.150 - (self.clock() - self.last_move)) * 1000)) if active else 0,
                 "burst_remaining_ms": max(1, int((10 - (self.clock() - self.started)) * 1000)) if active else 0,
-                "burst_count": self.bursts, "reason": 5 if self.state == "fault" else 4 if self.state == "limit" else 1,
+                "burst_count": self.bursts, "reason": 5 if self.state == "fault" else 4 if self.state == "limit"
+                else 3 if active else 1,
                 "encoders": [0, 0, 0, 0]}
 
     def move(self, direction, *, permit=None):
+        require(type(direction) is int and direction in SUPPORTED_DIRECTIONS, "Unsupported simulated direction.")
         if permit is not None and not permit():
             raise StaleHold("Hold cancelled.")
         self._tick()
         if self.state not in ("fault", "limit"):
             if self.state == "idle":
                 self.started, self.bursts = self.clock(), self.bursts + 1
+            if self.state == "idle" or direction != self.direction:
+                self.wake_at, self.state = self.clock(), "wake"
             self.direction, self.last_move = direction, self.clock()
-            self.state = "wake" if self.clock() - self.started < .005 else "running"
             self.move_calls.append((self.clock(), direction))
         return self.status()
 

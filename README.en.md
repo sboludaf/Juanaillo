@@ -8,4 +8,4 @@ Start with [hardware](docs/hardware.md), [bring-up](docs/bring-up.md), [firmware
 
 Only original project code is included. Manufacturer/ARM/ST dependencies are imported locally after checksum verification, never bundled as unlicensed archives or device flash dumps. Private board identity, network settings and credentials are excluded. See [THIRD_PARTY.md](THIRD_PARTY.md).
 
-A temporary [local web controller](web/README.md) provides hold-to-run Forward/Reverse controls. It requires the distinct `manual-hold` firmware; release, disconnect, stale input and maximum-hold limits stop motion. This is a diagnostic interface, not autonomous navigation.
+A temporary [local web controller](web/README.md) provides hold-to-run Forward, Reverse, Left and Right controls. Turning on the spot drives the two sides in opposite directions. It requires `manual-hold` profile 6 firmware; the previous profile 5 only supported forward/reverse and must be upgraded. Release, disconnect, stale input and maximum-hold limits stop motion. This is a diagnostic interface, not autonomous navigation.

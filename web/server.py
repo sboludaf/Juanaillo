@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local two-button service. Explicit --simulate or --execute starts a server."""
+"""Local manual-control service. Explicit --simulate or --execute starts a server."""
 from __future__ import annotations
 
 import argparse

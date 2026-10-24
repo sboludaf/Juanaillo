@@ -1,14 +1,27 @@
-# Web local de Avance y Retroceso
+# Web local de conducción
 
-Interfaz temporal con dos botones: **mantener pulsado mueve; soltar detiene**. Funciona con ratón, pantalla táctil y teclado. Perder foco, ocultar la página, cerrar la conexión o dejar de renovar el control provoca parada. Cada pulsación tiene un máximo de 10 s; al alcanzarlo hay que soltar y pulsar de nuevo.
+Interfaz temporal con cuatro botones, **Avance, Retroceso, Izquierda y Derecha**: mantener pulsado mueve; soltar detiene. Funciona con ratón, pantalla táctil y teclado. Los giros se realizan sobre el sitio, con un lado avanzando y el otro retrocediendo. Perder foco, ocultar la página, cerrar la conexión o dejar de renovar el control provoca parada. Cada pulsación tiene un máximo de 10 s; al alcanzarlo hay que soltar y pulsar de nuevo.
 
 Es una herramienta de diagnóstico para un chasis estable y ruedas elevadas, previa al desarrollo de conducción autónoma. Mantiene el PWM fijo al 10 %; no regula velocidad por encoders.
 
 ## Firmware requerido
 
-Necesita `firmware/manual-hold`, perfil 5. El firmware de avance fijo de 3 s, perfil 4, no acepta este protocolo. El nuevo perfil aplica las polaridades A/B/C/D `[+1,-1,+1,-1]` para avance y sus opuestas para retroceso; otras instalaciones deben comprobar su propio mapa.
+Necesita `firmware/manual-hold`, **perfil 6**. El perfil 5 anterior solo admitía avance/retroceso y debe actualizarse; el firmware de avance fijo de 3 s, perfil 4, tampoco acepta este protocolo. El backend exige el descriptor del perfil 6 antes de cualquier MOVE y no envía órdenes de giro a una versión anterior.
 
-El dispositivo caduca MOVE a 150 ms y limita un gesto a 10 s. El servidor renueva MOVE aproximadamente cada 50 ms solo mientras tiene una intención de navegador vigente; el navegador la renueva cada 50 ms y el servidor la caduca a 250 ms. El límite de 10 s no se extiende con heartbeats ni con inversión. STOP normal permite otra pulsación; FAULT requiere revisión y reinicio deliberado. Los cortes dependen del software/ISR/DWT, con IWDG de respaldo; no son mediciones eléctricas certificadas.
+El mapa del R5 medido es A=trasera derecha, B=trasera izquierda, C=delantera derecha y D=delantera izquierda:
+
+| Botón | Valor MOVE | Sentidos eléctricos A/B/C/D | Movimiento físico |
+| --- | ---: | --- | --- |
+| Avance | +1 | `[+1,-1,+1,-1]` | Ambos lados avanzan |
+| Retroceso | -1 | `[-1,+1,-1,+1]` | Ambos lados retroceden |
+| Izquierda | +2 | `[+1,+1,+1,+1]` | Derechas avanzan; izquierdas retroceden |
+| Derecha | -2 | `[-1,-1,-1,-1]` | Izquierdas avanzan; derechas retroceden |
+
+Otras instalaciones deben comprobar su propio mapa. Al girar con cuatro ruedas fijas se produce deslizamiento lateral; el PWM común no garantiza una velocidad angular ni un ángulo concreto.
+
+Las flechas y WASD equivalen a los cuatro botones. Espacio o Enter actúan sobre el botón que tiene el foco. Los atajos con Ctrl, Meta o Alt no inician movimiento y detienen una pulsación vigente.
+
+El dispositivo caduca MOVE a 150 ms y limita un gesto a 10 s. El servidor renueva MOVE aproximadamente cada 50 ms solo mientras tiene una intención de navegador vigente; el navegador la renueva cada 50 ms y el servidor la caduca a 250 ms. El límite de 10 s no se extiende con heartbeats ni con cambios de dirección. Antes de cambiar el patrón de motores, el firmware corta todas las salidas y vuelve a realizar la espera de activación. STOP normal permite otra pulsación; FAULT requiere revisión y reinicio deliberado. Los cortes dependen del software/ISR/DWT, con IWDG de respaldo; no son mediciones eléctricas certificadas.
 
 Compilar y cargar es un paso separado, con identificación, respaldo, plan y readback completo: consulta [firmware](../firmware/README.md) y [herramientas](../docs/tools-reference.md). No se graba ni se mueve la placa al ejecutar un build o un test.
 
@@ -66,4 +79,4 @@ python -m unittest discover -s web -p 'test_*.py' -v
 make -C firmware/manual-hold test
 ```
 
-Las pruebas automáticas usan un dispositivo simulado o un transporte falso. Las comprobaciones de navegador se hacen contra `--simulate`, no contra una placa real. Durante la puesta en marcha se comprobaron también una orden breve real de avance, otra de retroceso y STOP mediante WebSocket, con cuatro encoders de signo coherente y estado final de reposo.
+Las pruebas automáticas usan un dispositivo simulado o un transporte falso. Las comprobaciones de navegador se hacen contra `--simulate`, no contra una placa real. Durante la puesta en marcha del perfil 5 se comprobaron también una orden breve real de avance, otra de retroceso y STOP mediante WebSocket, con cuatro encoders de signo coherente y estado final de reposo. La ampliación a giros del perfil 6 tiene validación offline; todavía requiere cargar esa imagen y comprobar físicamente los giros.

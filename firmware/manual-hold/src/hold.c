@@ -6,10 +6,24 @@ static void be32(uint8_t *p,uint32_t value) { for(unsigned i=0;i<4;i++)p[i]=(uin
 static void be64(uint8_t *p,uint64_t value) { for(unsigned i=0;i<8;i++)p[i]=(uint8_t)(value>>(56u-8u*i)); }
 static uint64_t read64(const uint8_t *p) { uint64_t value=0;for(unsigned i=0;i<8;i++)value=(value<<8)|p[i];return value; }
 static bool active(const Hold *p) { return p->state==H_WAKE || p->state==H_RUNNING; }
+bool hold_direction_valid(int8_t direction)
+{
+    return direction==1 || direction==-1 || direction==2 || direction==-2;
+}
 bool hold_reverse_channel(int8_t direction,unsigned channel)
 {
-    if(channel>=4)return false;
+    if(channel>=4 || !hold_direction_valid(direction))return false;
+    if(direction==2)return false; /* Left: right wheels forward, left backward. */
+    if(direction==-2)return true; /* Right: right wheels backward, left forward. */
     return (direction<0)!=((HOLD_REVERSED_MASK&(1u<<channel))!=0);
+}
+HoldCompare hold_channel_compare(int8_t direction,unsigned channel)
+{
+    HoldCompare off={0,0};
+    if(channel>=4 || !hold_direction_valid(direction))return off;
+    HoldCompare positive={HOLD_TIMER_TICKS,HOLD_TIMER_TICKS-HOLD_DRIVE_TICKS};
+    HoldCompare negative={HOLD_TIMER_TICKS-HOLD_DRIVE_TICKS,HOLD_TIMER_TICKS};
+    return hold_reverse_channel(direction,channel)?negative:positive;
 }
 
 void hold_init(Hold *p,uint64_t nonce,uint32_t now)
@@ -61,9 +75,9 @@ static uint8_t command(Hold *p,uint8_t id,const uint8_t *data,size_t size,uint32
     if(id==0x50 && size==6 && !memcmp(data,"\0\0\0\0\0\0",6))return stop(p);
     if(id!=0x77 || size!=9)return hold_fault(p,R_FRAME)|E_REPLY;
     if(read64(data)!=p->nonce || !p->nonce)return hold_fault(p,R_NONCE)|E_REPLY;
-    if(data[8]!=1u && data[8]!=255u)return hold_fault(p,R_DIRECTION)|E_REPLY;
+    int8_t direction=(int8_t)(data[8]<128u?(int)data[8]:(int)data[8]-256);
+    if(!hold_direction_valid(direction))return hold_fault(p,R_DIRECTION)|E_REPLY;
     if(p->state==H_FAULT || p->state==H_LIMIT)return event|E_REPLY;
-    int8_t direction=data[8]==1u?1:-1;
     p->heartbeat_ms=now;
     if(p->state==H_IDLE) {
         p->burst_ms=now;p->burst_count++;

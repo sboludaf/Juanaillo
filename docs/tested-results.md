@@ -78,3 +78,15 @@ Para reproducir la verificación actual, seguir [bring-up](bring-up.md). Para am
 Con perfil 5 se validó un recorrido completo WebSocket autenticado → servidor → USB-DEBUG → H60 y STOP. Una pulsación breve de avance produjo deltas A/B/C/D `[-341,+385,-357,+346]`; retroceso produjo `[+307,-382,+294,-208]`. Ambas terminaron paradas y la sesión quedó en IDLE, sin una orden sostenida. No se guardan aquí claves, puertos personales ni registros crudos.
 
 El nuevo flujo portable de recuperación y carga también obtuvo dos lecturas reales concordantes de 512 KiB y verificó la carga completa del perfil 5. La validación eléctrica de corriente, tensión y tiempos exactos sigue fuera del alcance de estos resultados.
+
+## Ampliación de giros, perfil 6
+
+La web y `manual-hold` incorporan giros sobre el sitio a izquierda y derecha. Se mantienen el PWM del 10 %, el lease de 150 ms y el límite absoluto de 10 s. Las nuevas órdenes son `+2/-2` y los patrones eléctricos A/B/C/D son `[+1,+1,+1,+1]` para izquierda y `[-1,-1,-1,-1]` para derecha, aplicando el mapa de ruedas y polaridades ya medido.
+
+Nueve grupos nativos comprueban los cuatro patrones de comparadores PWM y las 32 transiciones entre órdenes en RUNNING y WAKE, además de STOP, lease, nonce y límite compartido. El build ARM de 7256 bytes se reprodujo con BIN/HEX idénticos; SHA256 del BIN:
+
+```text
+a6367b446f48201e441a4d5518bab7f93f5a3578410357b708ccea7ad6e4e282
+```
+
+Esta ampliación se preparó con la placa apagada. No se ha cargado ni ensayado físicamente el perfil 6; la evidencia real del perfil 5 anterior no valida por sí sola los giros ni el comportamiento en suelo.

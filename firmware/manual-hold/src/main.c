@@ -1,4 +1,4 @@
-/* Profile5: fixed-duty forward/reverse while explicit MOVE lease is fresh. */
+/* Profile6: fixed-duty forward/reverse/turn while explicit MOVE lease is fresh. */
 #include "stm32f4xx.h"
 #include "ax_encoder.h"
 #include "clock_validation.h"
@@ -9,6 +9,7 @@
 _Static_assert(HOLD_CHANNEL_MASK==15u,"Only the four motor channels are selected.");
 _Static_assert(HOLD_REVERSED_MASK==10u,"Forward inverts B and D.");
 _Static_assert(sizeof(HOLD_MARKER)-1u==28u,"CAPS marker is exactly28bytes.");
+_Static_assert(HOLD_TIMER_TICKS==4200u && HOLD_DRIVE_TICKS==420u,"Fixed5kHz/10percent waveform.");
 #define RX_COUNT 64u
 static Hold state;
 static volatile uint32_t milliseconds, last_isr_cycles;
@@ -69,26 +70,26 @@ static void counts(uint16_t out[4])
     out[0]=AX_ENCODER_A_GetCounter();out[1]=AX_ENCODER_B_GetCounter();
     out[2]=AX_ENCODER_C_GetCounter();out[3]=AX_ENCODER_D_GetCounter();
 }
-static void configure_pwm(bool reverse_a,bool reverse_b)
+static void configure_pwm(HoldCompare a,HoldCompare b)
 {
     /* Continuous PWM; all timing bounds depend on software/DWT and IWDG. */
     TIM1->CR1=TIM_CR1_ARPE;TIM1->CR2=0;TIM1->SMCR=0;TIM1->DIER=0;
     TIM1->PSC=7;TIM1->ARR=4199;TIM1->RCR=0;
-    TIM1->CCR1=reverse_a?3780:4200;TIM1->CCR2=reverse_a?4200:3780;
-    TIM1->CCR3=reverse_b?3780:4200;TIM1->CCR4=reverse_b?4200:3780;
+    TIM1->CCR1=a.in1_ticks;TIM1->CCR2=a.in2_ticks;
+    TIM1->CCR3=b.in1_ticks;TIM1->CCR4=b.in2_ticks;
     TIM1->CCMR1=(6u<<4)|TIM_CCMR1_OC1PE|(6u<<12)|TIM_CCMR1_OC2PE;
     TIM1->CCMR2=(6u<<4)|TIM_CCMR2_OC3PE|(6u<<12)|TIM_CCMR2_OC4PE;
     TIM1->CCER=TIM_CCER_CC1E|TIM_CCER_CC2E|TIM_CCER_CC3E|TIM_CCER_CC4E;
     TIM1->BDTR=TIM_BDTR_OSSI|TIM_BDTR_OSSR;
     TIM1->EGR=TIM_EGR_UG;TIM1->SR=0;TIM1->CNT=0;
 }
-static void configure_two_channel(TIM_TypeDef *timer,uint16_t prescaler,bool reverse)
+static void configure_two_channel(TIM_TypeDef *timer,uint16_t prescaler,HoldCompare pwm)
 {
     /* TIM9/TIM12 carecen de RCR/BDTR; no se accede a esos registros.
        El corte de C/D depende del bucle/ISR+DWT, con IWDG de respaldo. */
     timer->CR1=TIM_CR1_ARPE;timer->SMCR=0;timer->DIER=0;
     timer->PSC=prescaler;timer->ARR=4199;
-    timer->CCR1=reverse?3780:4200;timer->CCR2=reverse?4200:3780;
+    timer->CCR1=pwm.in1_ticks;timer->CCR2=pwm.in2_ticks;
     timer->CCMR1=(6u<<4)|TIM_CCMR1_OC1PE|(6u<<12)|TIM_CCMR1_OC2PE;
     timer->CCER=TIM_CCER_CC1E|TIM_CCER_CC2E;
     timer->EGR=TIM_EGR_UG;timer->SR=0;timer->CNT=0;
@@ -106,7 +107,7 @@ static void apply(uint8_t event)
         /* Disable every timer and drive all bridge inputs00 BEFORE every start
            or reversal. A direction never changes through an active PWM. */
         motors_off();
-        if(state.state!=H_WAKE || (state.direction!=1 && state.direction!=-1) || !all_low()) {
+        if(state.state!=H_WAKE || !hold_direction_valid(state.direction) || !all_low()) {
             kill_latch=true;hold_fault(&state,R_HARDWARE);motors_off();return;
         }
         if(state.burst_count!=hardware_burst_count) {
@@ -120,15 +121,15 @@ static void apply(uint8_t event)
     if(event&E_PWM) {
         uint32_t elapsed=DWT->CYCCNT-wake_cycles;
         if(state.state!=H_RUNNING || hardware_started ||
-           (state.direction!=1 && state.direction!=-1) ||
+           !hold_direction_valid(state.direction) ||
            elapsed<HOLD_WAKE_MS*(SystemCoreClock/1000u) ||
            elapsed>(HOLD_WAKE_MS+1u)*(SystemCoreClock/1000u)) {
             kill_latch=true;hold_fault(&state,R_LATE);motors_off();return;
         }
         if(burst_finished()) { hold_tick(&state,milliseconds,true);motors_off();return; }
-        configure_pwm(hold_reverse_channel(state.direction,0),hold_reverse_channel(state.direction,1));
-        configure_two_channel(TIM9,7,hold_reverse_channel(state.direction,2));
-        configure_two_channel(TIM12,3,hold_reverse_channel(state.direction,3));
+        configure_pwm(hold_channel_compare(state.direction,0),hold_channel_compare(state.direction,1));
+        configure_two_channel(TIM9,7,hold_channel_compare(state.direction,2));
+        configure_two_channel(TIM12,3,hold_channel_compare(state.direction,3));
         GPIOE->AFR[0]=(GPIOE->AFR[0]&~((15u<<20)|(15u<<24)))|(3u<<20)|(3u<<24);
         GPIOE->AFR[1]=(GPIOE->AFR[1]&~((15u<<4)|(15u<<12)|(15u<<20)|(15u<<24)))|
                      (1u<<4)|(1u<<12)|(1u<<20)|(1u<<24);

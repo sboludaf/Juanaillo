@@ -29,9 +29,9 @@ static void boot_and_caps(void)
     Hold p;hold_init(&p,nonce,0);assert(p.state==H_IDLE && p.direction==0);
     assert(hold_tick(&p,600000,false)==E_NONE && p.burst_count==0);
     uint8_t caps[48],status[44];hold_caps(caps);hold_status(&p,123,true,status);
-    const uint8_t prefix[]={1,5,15,10,0,100,0x13,0x88,0,4,0x27,0x10,0,0x98,0x96,0x80,0,0,0,150};
+    const uint8_t prefix[]={1,6,15,10,0,100,0x13,0x88,0,4,0x27,0x10,0,0x98,0x96,0x80,0,0,0,150};
     assert(!memcmp(caps,prefix,20));assert(!memcmp(caps+20,HOLD_MARKER,28));
-    assert(status[1]==5 && status[2]==H_IDLE && status[3]==9);
+    assert(status[1]==6 && status[2]==H_IDLE && status[3]==9);
     assert(read32(status+28)==0 && read32(status+36)==0 && read32(status+40)==0);
     hold_init(&p,0,0);assert(p.state==H_FAULT && p.reason==R_RNG);
     assert(move(&p,1,1)&E_OFF);assert(p.state==H_FAULT);
@@ -80,15 +80,20 @@ static void reversal_wakes_without_extending_burst(void)
 static void absolute_limit_needs_release(void)
 {
     Hold p;hold_init(&p,nonce,0);move(&p,1,0);
+    const int directions[]={1,-1,2,-2};
     for(uint32_t now=1;now<=10000;now++) {
         uint8_t event=hold_tick(&p,now,false);
         if(now<10000) {
             assert(!(event&E_OFF));
-            if(now%50u==0)move(&p,now<5000?1:-1,now);
+            if(now%50u==0)move(&p,directions[(now/50u)%4u],now);
+            if(now==9999u)move(&p,p.direction==2?-2:2,now);
         } else assert(event&E_OFF);
     }
     assert(p.state==H_LIMIT && p.reason==R_LIMIT && p.burst_ms==0);
-    assert(!(move(&p,1,10001)&(E_WAKE|E_PWM)) && p.state==H_LIMIT && p.burst_count==1);
+    for(unsigned i=0;i<4;i++) {
+        assert(!(move(&p,directions[i],10001)&(E_WAKE|E_PWM)));
+        assert(p.state==H_LIMIT && p.burst_count==1 && p.direction==0);
+    }
     stop(&p,10002);assert(move(&p,-1,10003)&E_WAKE);assert(p.burst_count==2);
     assert(hold_tick(&p,10004,true)&E_OFF);assert(p.state==H_LIMIT);
 }
@@ -120,11 +125,70 @@ static void status_counts_wrap_and_directions(void)
         assert(hold_reverse_channel(-1,channel)!=forward[channel]);
     }
 }
+static void four_commands_and_pwm_mapping(void)
+{
+    const int8_t directions[]={1,-1,2,-2};
+    const int8_t raw[4][4]={{1,-1,1,-1},{-1,1,-1,1},{1,1,1,1},{-1,-1,-1,-1}};
+    /* Compare values below are the actual values consumed by TIM1 CH1/2 A,
+       TIM1 CH3/4 B, TIM9 CH1/2 C and TIM12 CH1/2 D in main.c. */
+    for(unsigned command=0;command<4;command++) {
+        Hold p;hold_init(&p,nonce,0);assert(hold_direction_valid(directions[command]));
+        assert(move(&p,directions[command],0)&E_WAKE);assert(hold_tick(&p,5,false)==E_PWM);
+        for(unsigned channel=0;channel<4;channel++) {
+            HoldCompare pwm=hold_channel_compare(directions[command],channel);
+            assert(hold_reverse_channel(directions[command],channel)==(raw[command][channel]<0));
+            assert(pwm.in1_ticks==(raw[command][channel]>0?4200:3780));
+            assert(pwm.in2_ticks==(raw[command][channel]>0?3780:4200));
+            assert((int)pwm.in1_ticks-(int)pwm.in2_ticks==420*raw[command][channel]);
+        }
+        Hold stale;hold_init(&stale,nonce+1,0);
+        assert(move(&stale,directions[command],0)&E_OFF);
+        assert(stale.state==H_FAULT && stale.reason==R_NONCE && !stale.burst_count);
+    }
+    const int8_t invalid[]={0,3,-3,127,-128};
+    for(unsigned i=0;i<sizeof(invalid)/sizeof(invalid[0]);i++) {
+        Hold p;hold_init(&p,nonce,0);assert(!hold_direction_valid(invalid[i]));
+        assert(move(&p,invalid[i],0)&E_OFF);assert(p.state==H_FAULT && p.reason==R_DIRECTION);
+        HoldCompare pwm=hold_channel_compare(invalid[i],0);assert(!pwm.in1_ticks && !pwm.in2_ticks);
+    }
+    HoldCompare invalid_channel=hold_channel_compare(1,4);assert(!invalid_channel.in1_ticks && !invalid_channel.in2_ticks);
+}
+static void every_transition_keeps_limits(void)
+{
+    const int8_t directions[]={1,-1,2,-2};
+    for(unsigned a=0;a<4;a++)for(unsigned b=0;b<4;b++) {
+        Hold p;hold_init(&p,nonce,0);move(&p,directions[a],0);hold_tick(&p,5,false);
+        uint8_t event=move(&p,directions[b],10);
+        assert(p.heartbeat_ms==10 && p.burst_ms==0 && p.burst_count==1);
+        if(a==b) {
+            assert(!(event&(E_WAKE|E_OFF|E_PWM)));assert(p.state==H_RUNNING && p.wake_ms==0);
+        } else {
+            assert((event&E_WAKE) && !(event&E_PWM));assert(p.state==H_WAKE && p.wake_ms==10);
+            assert(hold_tick(&p,14,false)==0);assert(hold_tick(&p,15,false)==E_PWM);
+        }
+        assert(p.direction==directions[b]);assert(stop(&p,20)&E_OFF);assert(p.state==H_IDLE);
+        assert(move(&p,directions[a],21)&E_WAKE);assert(p.burst_count==2);
+        /* The same16 transitions are checked while the first wake is pending. */
+        hold_init(&p,nonce,0);move(&p,directions[a],0);event=move(&p,directions[b],2);
+        assert(p.burst_ms==0 && p.burst_count==1 && p.heartbeat_ms==2);
+        if(a==b) {
+            assert(!(event&(E_WAKE|E_OFF|E_PWM)));assert(p.wake_ms==0);
+            assert(hold_tick(&p,5,false)==E_PWM);
+        } else {
+            assert((event&E_WAKE) && !(event&E_PWM));assert(p.wake_ms==2);
+            assert(hold_tick(&p,6,false)==0);assert(hold_tick(&p,7,false)==E_PWM);
+        }
+        /* A late refresh of any command faults; changing direction cannot revive it. */
+        assert(move(&p,directions[a],152)&E_OFF);assert(p.state==H_FAULT && p.reason==R_LEASE);
+        stop(&p,153);move(&p,directions[b],154);assert(p.state==H_FAULT);
+    }
+}
 int main(void)
 {
     boot_and_caps();hold_release_and_new_press();lease_expiry_cannot_revive();
     reversal_wakes_without_extending_burst();absolute_limit_needs_release();
     nonce_direction_and_frames();status_counts_wrap_and_directions();
-    puts("PASS: manual-hold7 native groups: nonce, MOVE/release, reverse wake, lease, absolute limit, frames, directions. No hardware.");
+    four_commands_and_pwm_mapping();every_transition_keeps_limits();
+    puts("PASS: manual-turn9 native groups: four commands/PWM vectors,32 transitions, lease,STOP,LIMIT,nonce,frames. No hardware.");
     return 0;
 }

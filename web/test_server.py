@@ -49,14 +49,40 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_browser_deadman_with_open_socket(self):
         ws, _ = await self.connect()
-        await ws.send_json({"type": "hold", "direction": "forward", "seq": 1})
+        await ws.send_json({"type": "hold", "direction": "left", "seq": 1})
         await self.wait_for(lambda: bool(self.device.move_calls))
+        self.assertEqual(self.device.move_calls[0][1], 2)
         await asyncio.sleep(.33)
         self.assertFalse(self.app[CONTROLLER].snapshot()["moving"])
         self.assertTrue(self.app[CONTROLLER].snapshot()["release_required"])
         count = len(self.device.move_calls)
         await ws.send_json({"type": "heartbeat", "seq": 2}); await asyncio.sleep(.08)
         self.assertEqual(len(self.device.move_calls), count)
+
+    async def test_left_right_websocket_to_worker_and_rapid_stop_then_new_hold(self):
+        ws, _ = await self.connect()
+        await ws.send_json({"type": "hold", "direction": "left", "seq": 1})
+        await self.wait_for(lambda: self.app[CONTROLLER].snapshot()["direction"] == "left")
+        self.assertEqual(self.device.move_calls[-1][1], 2)
+        await ws.send_json({"type": "stop", "seq": 2})
+        await ws.send_json({"type": "hold", "direction": "right", "seq": 3})
+        await self.wait_for(lambda: self.app[CONTROLLER].snapshot()["direction"] == "right")
+        self.assertEqual(self.device.move_calls[-1][1], -2)
+        self.assertGreaterEqual(self.device.stop_calls, 2)  # Initial STOP and gesture transition.
+        await ws.send_json({"type": "stop", "seq": 4})
+        await self.wait_for(lambda: not self.app[CONTROLLER].snapshot()["moving"])
+        count = len(self.device.move_calls)
+        await asyncio.sleep(.08)
+        self.assertEqual(len(self.device.move_calls), count)
+
+    async def test_two_simultaneous_turn_intents_stop_instead_of_switching(self):
+        ws, _ = await self.connect()
+        await ws.send_json({"type": "hold", "direction": "left", "seq": 1})
+        await self.wait_for(lambda: self.device.direction == 2)
+        await ws.send_json({"type": "hold", "direction": "right", "seq": 2})
+        await self.wait_for(lambda: self.app[CONTROLLER].owner is None)
+        await self.wait_for(lambda: self.device.state == "idle")
+        self.assertFalse(any(value == -2 for _, value in self.device.move_calls))
 
     async def test_second_owner_and_bad_token_do_not_steal_control(self):
         first, _ = await self.connect()

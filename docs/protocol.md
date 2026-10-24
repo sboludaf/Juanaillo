@@ -103,6 +103,6 @@ El host acumula deltas de muestras sucesivas con aritmética modular de 16 bits,
 
 Con los signos manuales `[-1,+1,-1,+1]`, sólo declara `forward-verified` cuando los cuatro totales normalizados son positivos y de al menos ocho cuentas. Un resultado inverso o inconcluso no provoca otra prueba ni modifica un perfil físico. Se guardan muestras raw y resultado en un directorio nuevo; los registros reales permanecen fuera del repositorio público.
 
-## Control temporal perfil 5
+## Control temporal perfil 6
 
-El controlador web utiliza un protocolo distinto del perfil 4 descrito arriba. Sus especificaciones y límites están en [web/README.md](../web/README.md) y [firmware/manual-hold/README.md](../firmware/manual-hold/README.md): MOVE `0x77` con nonce64+dirección int8, STATUS de44bytes y STOP reutilizable. El backend rechaza perfiles incompatibles; no adapta silenciosamente un firmware antiguo.
+El controlador web utiliza un protocolo distinto del perfil 4 descrito arriba. Sus especificaciones y límites están en [web/README.md](../web/README.md) y [firmware/manual-hold/README.md](../firmware/manual-hold/README.md): MOVE `0x77` con nonce64+dirección int8, STATUS de44bytes y STOP reutilizable. Las direcciones son `+1` avance, `-1` retroceso, `+2` izquierda y `-2` derecha. CAPS identifica el perfil 6 y el marcador `H60_MANUAL_TURN_CONTROL_V1__`; los giros conservan el lease de 150 ms y el límite absoluto de 10 s. El backend rechaza perfiles incompatibles, incluido el perfil 5 anterior de avance/retroceso; no adapta silenciosamente un firmware antiguo.

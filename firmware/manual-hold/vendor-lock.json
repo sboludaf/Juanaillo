@@ -1,6 +1,6 @@
 {
   "schema": "h60.vendor-import-lock.v1",
-  "description": "Same checked private dependency set as forward-3s; consumed by manual-hold profile5.",
+  "description": "Same checked private dependency set as forward-3s; consumed by manual-hold profile6.",
   "source_package_name": "OpenCTR H60 code.zip",
   "destination": "firmware/manual-hold/vendor",
   "files": [

@@ -3,7 +3,7 @@ import time
 import unittest
 
 from web.control import ControlError, Controller, DeviceWorker
-from web.serial_client import SimulatedDevice
+from web.serial_client import DeviceError, SimulatedDevice
 
 
 class Clock:
@@ -90,6 +90,27 @@ class ControllerTests(unittest.TestCase):
         self.assertFalse(self.control.permit(generation, direction))
         self.assertEqual(self.control.action()[2], 0)
 
+    def test_turn_names_values_and_stop_ack_before_next_intent(self):
+        for index, (name, value) in enumerate((("left", 2), ("right", -2))):
+            self.command("hold", index * 2 + 1, direction=name)
+            _, generation, direction = self.control.action()
+            self.assertEqual(direction, value)
+            self.assertTrue(self.control.permit(generation, direction))
+            self.control.publish(status("running", value))
+            self.assertEqual(self.control.snapshot("owner")["direction"], name)
+            self.command("stop", index * 2 + 2)
+            self.assertFalse(self.control.permit(generation, direction))
+            self.control.stopped(self.control.stop_epoch); self.control.publish(status())
+
+    def test_simultaneous_intent_cancels_turn_and_cannot_replace_it(self):
+        self.command("hold", 1, direction="left")
+        _, generation, direction = self.control.action()
+        with self.assertRaises(ControlError):
+            self.command("hold", 2, direction="right")
+        self.assertFalse(self.control.permit(generation, direction))
+        self.assertEqual(self.control.action()[2], 0)
+        self.assertTrue(self.control.release_required)
+
     def test_fault_is_not_cleared_by_stop_or_fresh_hold(self):
         self.control.publish(status("fault"))
         self.command("stop", 1)
@@ -99,6 +120,32 @@ class ControllerTests(unittest.TestCase):
 
 
 class WorkerTests(unittest.TestCase):
+    def test_pending_turn_released_before_stop_ack_never_reaches_device(self):
+        entered, finish = threading.Event(), threading.Event()
+        class GateStopDevice(SimulatedDevice):
+            def stop(self):
+                if self.stop_calls == 1:
+                    entered.set(); finish.wait(1)
+                return super().stop()
+        device = GateStopDevice(); control = Controller(simulated=True)
+        worker = DeviceWorker(control, lambda: device); worker.start()
+        self.addCleanup(worker.close); self.addCleanup(finish.set)
+        deadline = time.monotonic() + 1
+        while not control.snapshot()["ready"] and time.monotonic() < deadline:
+            time.sleep(.005)
+        control.claim("owner")
+        control.command("owner", {"type": "hold", "direction": "forward", "seq": 1})
+        while not device.move_calls and time.monotonic() < deadline:
+            time.sleep(.005)
+        self.assertTrue(device.move_calls)
+        control.command("owner", {"type": "stop", "seq": 2})
+        control.command("owner", {"type": "hold", "direction": "left", "seq": 3})
+        self.assertTrue(entered.wait(1))
+        control.command("owner", {"type": "stop", "seq": 4})
+        finish.set(); time.sleep(.08)
+        self.assertFalse(any(direction == 2 for _, direction in device.move_calls))
+        self.assertEqual(control.action()[2], 0)
+
     def test_real_thread_expires_browser_hold_and_never_resumes_old_heartbeat(self):
         device = SimulatedDevice()
         control = Controller(simulated=True)
@@ -119,6 +166,39 @@ class WorkerTests(unittest.TestCase):
         time.sleep(.08)
         self.assertEqual(len(device.move_calls), moves)
         self.assertGreaterEqual(device.stop_calls, 2)
+
+
+class TurnSimulationTests(unittest.TestCase):
+    def test_turn_change_preserves_burst_and_limit_requires_stop(self):
+        clock = Clock(); device = SimulatedDevice(clock=clock)
+        self.assertEqual(device.move(2)["state"], "wake")
+        clock.now += .1
+        self.assertEqual(device.move(-2)["state"], "wake")
+        self.assertEqual(device.bursts, 1)
+        for step in range(3, 200):
+            clock.now = 100 + step * .05
+            device.move(-2)
+        clock.now = 110
+        self.assertEqual(device.move(2)["state"], "limit")
+        calls = len(device.move_calls)
+        clock.now += .05; device.move(-2)
+        self.assertEqual(len(device.move_calls), calls)
+        self.assertEqual(device.bursts, 1)
+        device.stop()
+        self.assertEqual(device.move(2)["state"], "wake")
+        self.assertEqual(device.bursts, 2)
+
+    def test_lost_turn_lease_is_sticky_and_invalid_values_do_not_move(self):
+        clock = Clock(); device = SimulatedDevice(clock=clock)
+        for invalid in (0, 3, -3, True):
+            with self.assertRaises(DeviceError):
+                device.move(invalid)
+        self.assertEqual(device.move_calls, [])
+        device.move(-2); clock.now += .151
+        self.assertEqual(device.status()["state"], "fault")
+        device.stop(); device.move(2)
+        self.assertEqual(device.state, "fault")
+        self.assertEqual(len(device.move_calls), 1)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 Juanaillo reúne herramientas y documentación en español para empezar a trabajar con una **OpenCTR H60 V3.7 / STM32F407VET6** desde Linux por USB y avanzar hacia la conducción autónoma, sin depender de leer los tutoriales originales en chino.
 
-El objetivo del proyecto es servir de base para **conducción autónoma**. Actualmente cubre identificación, recuperación, respaldo, carga controlada, calibración de encoders, una prueba de avance de cuatro ruedas de 3 segundos y una web local temporal de Avance/Retroceso. La navegación autónoma, el control de velocidad calibrado y la odometría completa siguen pendientes.
+El objetivo del proyecto es servir de base para **conducción autónoma**. Actualmente cubre identificación, recuperación, respaldo, carga controlada, calibración de encoders, una prueba de avance de cuatro ruedas de 3 segundos y una web local temporal de Avance, Retroceso, Izquierda y Derecha. La navegación autónoma, el control de velocidad calibrado y la odometría completa siguen pendientes.
 
 [English overview](README.en.md) · [Hardware](docs/hardware.md) · [Puesta en marcha](docs/bring-up.md) · [Resultados reales](docs/tested-results.md) · [Guía para agentes](AGENTS.md)
 
@@ -23,8 +23,8 @@ Son resultados de una unidad y un montaje concretos. No convierten esos valores 
 |---|---|
 | `firmware/forward-3s/` | Firmware de banco: cuatro motores hacia avance, un disparo explícito de 3 s por arranque |
 | `firmware/commissioning/` | Núcleo y pruebas de la puesta en marcha anterior; consultar su alcance antes de compilar |
-| `firmware/manual-hold/` | Firmware de control temporal: Avance/Retroceso, parada al soltar y máximo 10 s por pulsación |
-| `web/` | Web local con dos botones, conexión autenticada y parada ante pérdida de control |
+| `firmware/manual-hold/` | Firmware de control temporal: avance, retroceso y giros sobre el sitio, parada al soltar y máximo 10 s por pulsación |
+| `web/` | Web local con cuatro botones, conexión autenticada y parada ante pérdida de control |
 | `host/` | Cliente USB-DEBUG: descriptor, nonce, heartbeat, STOP y seguimiento de encoders |
 | `tools/` | Identificación, backup, plan de carga, escritura limitada y arranque separado |
 | `scripts/` | Importación verificada de dependencias y comprobación del árbol publicable |
@@ -58,9 +58,9 @@ make check
 
 No necesita placa ni paquetes del fabricante para los tests nativos. La reconstrucción ARM sí requiere importarlos. Consulta la [validación de la copia limpia](docs/validation.md).
 
-## Web local de Avance y Retroceso
+## Web local de conducción
 
-La interfaz tiene dos botones: mantener pulsado mueve, soltar detiene. También detiene al perder foco, visibilidad o conexión. El firmware `manual-hold` aplica la corrección B/D, limita la potencia al 10 % y cada pulsación a 10 s. Es un control temporal para diagnóstico; no sustituye el futuro supervisor autónomo.
+La interfaz tiene cuatro botones: **Avance, Retroceso, Izquierda y Derecha**. Mantener pulsado mueve; soltar detiene. Los giros se realizan sobre el sitio, con un lado avanzando y el otro retrocediendo. También detiene al perder foco, visibilidad o conexión. El firmware `manual-hold`, perfil 6, aplica el mapa de polaridades del R5, limita el PWM al 10 % y cada pulsación a 10 s. Es un control temporal para diagnóstico; no sustituye el futuro supervisor autónomo. El perfil 5 anterior solo admitía avance y retroceso: hay que actualizar la placa para usar esta versión.
 
 Consulta [web/README.md](web/README.md) para simulación, firmware correcto y arranque real. La aplicación de 3 s no acepta este protocolo. El servidor simula por defecto; el modo real requiere ejecución explícita y un manifiesto revisado. Las claves de acceso y registros se guardan en `.local/`, nunca en Git.
 

@@ -3,7 +3,7 @@
 Hay tres entregas con alcances distintos:
 
 - [forward-3s](forward-3s/README.md): aplicación de banco completa para H60 V3.7; cuatro ruedas hacia avance durante 3 s al 10 % PWM. Invierte B/D y requiere un FIRE explícito, nonce nuevo y heartbeats. El BIN reconstruido coincidió byte a byte con el ensayado en la placa.
-- [manual-hold](manual-hold/README.md): aplicación para la web local temporal, Avance/Retroceso al 10 %, lease de 150 ms y máximo 10 s por pulsación. STOP permite una nueva pulsación; los fallos quedan bloqueados. Es un protocolo distinto de `forward-3s`.
+- [manual-hold](manual-hold/README.md): aplicación para la web local temporal, perfil 6 con avance, retroceso y giros sobre el sitio al 10 %, lease de 150 ms y máximo 10 s por pulsación. STOP permite una nueva pulsación; los fallos quedan bloqueados. Requiere actualizar el perfil 5 anterior y es un protocolo distinto de `forward-3s`.
 - [commissioning](commissioning/README.md): módulos y pruebas propios de puesta en marcha, seguridad, control e IMU. No es una aplicación ARM completa: se excluyeron las integraciones del fabricante cuya redistribución no está establecida.
 
 ## Preparar dependencias

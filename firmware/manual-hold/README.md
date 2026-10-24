@@ -1,12 +1,26 @@
-# Manual hold, profile 5
+# Manual hold and turns, profile 6
 
-This isolated bench firmware provides fixed-duty forward and reverse while a
-controller actively renews MOVE. It is intended for the local two-button UI,
+This isolated bench firmware provides fixed-duty forward, reverse and in-place
+left/right turns while a controller actively renews MOVE. It is intended for the local UI,
 not speed regulation or autonomous driving. Boot, STATUS and CAPS never start
 motors. The previous profile4 three-second candidate remains separate.
 
-Four channels run at 10% differential duty and 5 kHz. Forward uses raw motor
-directions `[+1,-1,+1,-1]` in A/B/C/D order; reverse inverts all four. Every start
+Four channels run at 10% differential duty and 5 kHz. Commands and raw vectors
+in A/B/C/D order are:
+
+| MOVE | Meaning | Raw A/B/C/D |
+|---|---|---|
+| `+1` | Forward | `[+1,-1,+1,-1]` |
+| `-1` | Reverse | `[-1,+1,-1,+1]` |
+| `+2` | Left in place | `[+1,+1,+1,+1]` |
+| `-2` | Right in place | `[-1,-1,-1,-1]` |
+
+Positive raw drive uses CCR inputs `[4200,3780]`; negative uses `[3780,4200]`.
+The same tested pure mapping supplies the actual timer-register values:
+A=TIM1CH1/2 on PE9/11, B=TIM1CH3/4 on PE13/14,
+C=TIM9CH1/2 on PE5/6 and D=TIM12CH1/2 on PB14/15.
+Turning left means the right wheels move forward and the left wheels backward;
+right is the opposite, for the documented R5 channel assignment. Every start
 or reversal disables all PWM timers and drives all bridge inputs00 before a
 brake/wake11 phase of at least4ms. The hardware DWT guard accepts4..5ms before
 enabling the new PWM; a missed timing window faults with outputs off.
@@ -49,7 +63,7 @@ USB-DEBUG, USART1 PA9/PA10,2304008N1. Framing remains
 |---|---|---|
 | `0x70` STATUS | Empty |44bytes |
 | `0x76` CAPS | Empty |48bytes |
-| `0x77` MOVE | Boot nonce `uint64` + direction `int8` (`+1` or `-1`) | STATUS |
+| `0x77` MOVE | Boot nonce `uint64` + command `int8` (`+1,-1,+2,-2`) | STATUS |
 | `0x74` STOP | Empty | STATUS |
 | `0x63` ENCODERS | Empty | Four `uint16` |
 
@@ -60,8 +74,8 @@ out after30ms. MOVE is the only lease renewal; STATUS never keeps motors moving.
 CAPS is `>BBBBHHHHII` followed by28ASCII bytes:
 
 ```text
-(1,5,15,10,100,5000,4,10000,10000000,150)
-H60_MANUAL_HOLD_CONTROL_V1__
+(1,6,15,10,100,5000,4,10000,10000000,150)
+H60_MANUAL_TURN_CONTROL_V1__
 ```
 
 Fields are version,profile,channel mask,forward reversed mask,duty permille,

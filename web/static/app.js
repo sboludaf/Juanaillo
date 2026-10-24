@@ -5,6 +5,7 @@
   const connection = document.querySelector(".connection");
   const connectionLabel = document.getElementById("connection-label");
   const motionStatus = document.getElementById("motion-status");
+  const directionLabels = { forward: "Avance", reverse: "Retroceso", left: "Izquierda", right: "Derecha" };
   const fragmentToken = new URLSearchParams(location.hash.slice(1)).get("token");
   let token = fragmentToken;
   // Session-only access survives refresh; motion state is never persisted.
@@ -77,7 +78,7 @@
       stop();
       return;
     }
-    motionStatus.textContent = direction === "forward" ? "Avance · suelta para parar" : "Retroceso · suelta para parar";
+    motionStatus.textContent = `${directionLabels[direction]} · suelta para parar`;
     renderControls();
     heartbeat = setInterval(() => {
       if (!owner || !ready || document.hidden) {
@@ -193,12 +194,20 @@
   }
 
   function keyDirection(event) {
-    if (event.code === "ArrowUp") return "forward";
-    if (event.code === "ArrowDown") return "reverse";
+    const directions = {
+      ArrowUp: "forward", KeyW: "forward", ArrowDown: "reverse", KeyS: "reverse",
+      ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right",
+    };
+    if (directions[event.code]) return directions[event.code];
     if ((event.code === "Space" || event.code === "Enter") && buttons.includes(document.activeElement)) return document.activeElement.dataset.direction;
     return null;
   }
   window.addEventListener("keydown", (event) => {
+    // Browser shortcuts such as Ctrl+A/Ctrl+S must never start a motor command.
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      if (owner) stop();
+      return;
+    }
     const direction = keyDirection(event);
     if (!direction) return;
     event.preventDefault();
