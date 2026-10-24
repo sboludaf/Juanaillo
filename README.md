@@ -2,7 +2,7 @@
 
 Juanaillo reúne herramientas y documentación en español para empezar a trabajar con una **OpenCTR H60 V3.7 / STM32F407VET6** desde Linux por USB y avanzar hacia la conducción autónoma, sin depender de leer los tutoriales originales en chino.
 
-El objetivo del proyecto es servir de base para **conducción autónoma**. Actualmente cubre identificación, recuperación, respaldo, carga controlada, calibración de encoders y una prueba de avance de cuatro ruedas de 3 segundos. La navegación autónoma, el control de velocidad calibrado y la odometría completa siguen pendientes.
+El objetivo del proyecto es servir de base para **conducción autónoma**. Actualmente cubre identificación, recuperación, respaldo, carga controlada, calibración de encoders, una prueba de avance de cuatro ruedas de 3 segundos y una web local temporal de Avance/Retroceso. La navegación autónoma, el control de velocidad calibrado y la odometría completa siguen pendientes.
 
 [English overview](README.en.md) · [Hardware](docs/hardware.md) · [Puesta en marcha](docs/bring-up.md) · [Resultados reales](docs/tested-results.md) · [Guía para agentes](AGENTS.md)
 
@@ -23,6 +23,8 @@ Son resultados de una unidad y un montaje concretos. No convierten esos valores 
 |---|---|
 | `firmware/forward-3s/` | Firmware de banco: cuatro motores hacia avance, un disparo explícito de 3 s por arranque |
 | `firmware/commissioning/` | Núcleo y pruebas de la puesta en marcha anterior; consultar su alcance antes de compilar |
+| `firmware/manual-hold/` | Firmware de control temporal: Avance/Retroceso, parada al soltar y máximo 10 s por pulsación |
+| `web/` | Web local con dos botones, conexión autenticada y parada ante pérdida de control |
 | `host/` | Cliente USB-DEBUG: descriptor, nonce, heartbeat, STOP y seguimiento de encoders |
 | `tools/` | Identificación, backup, plan de carga, escritura limitada y arranque separado |
 | `scripts/` | Importación verificada de dependencias y comprobación del árbol publicable |
@@ -56,9 +58,15 @@ make check
 
 No necesita placa ni paquetes del fabricante para los tests nativos. La reconstrucción ARM sí requiere importarlos. Consulta la [validación de la copia limpia](docs/validation.md).
 
+## Web local de Avance y Retroceso
+
+La interfaz tiene dos botones: mantener pulsado mueve, soltar detiene. También detiene al perder foco, visibilidad o conexión. El firmware `manual-hold` aplica la corrección B/D, limita la potencia al 10 % y cada pulsación a 10 s. Es un control temporal para diagnóstico; no sustituye el futuro supervisor autónomo.
+
+Consulta [web/README.md](web/README.md) para simulación, firmware correcto y arranque real. La aplicación de 3 s no acepta este protocolo. El servidor simula por defecto; el modo real requiere ejecución explícita y un manifiesto revisado. Las claves de acceso y registros se guardan en `.local/`, nunca en Git.
+
 ## Estado actual y próximos pasos
 
-El firmware publicado es una herramienta de banco, no un controlador de navegación. Para avanzar hacia conducción autónoma hay que completar los límites y el control de velocidad, medir geometría, validar sensores y acordar una interfaz con el ordenador de navegación. Consulta [la hoja de ruta](docs/roadmap.md).
+Los perfiles publicados son herramientas de banco y control temporal, no un controlador de navegación. Para avanzar hacia conducción autónoma hay que completar los límites y el control de velocidad, medir geometría, validar sensores y acordar una interfaz con el ordenador de navegación. Consulta [la hoja de ruta](docs/roadmap.md).
 
 ## Publicación y licencias
 

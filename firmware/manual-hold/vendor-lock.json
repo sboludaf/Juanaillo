@@ -1,0 +1,378 @@
+{
+  "schema": "h60.vendor-import-lock.v1",
+  "description": "Same checked private dependency set as forward-3s; consumed by manual-hold profile5.",
+  "source_package_name": "OpenCTR H60 code.zip",
+  "destination": "firmware/manual-hold/vendor",
+  "files": [
+    {
+      "output": "Driver/ax_encoder.c",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Driver/ax_encoder.c",
+      "pristine_sha256": "04d58373a0f182f160390d9c9d0b66ff3901b93fe1e284a6c6879d49db15d047",
+      "output_sha256": "04d58373a0f182f160390d9c9d0b66ff3901b93fe1e284a6c6879d49db15d047",
+      "attribution": "XTARK, copyright notice; no standalone redistribution permission found"
+    },
+    {
+      "output": "Driver/ax_encoder.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Driver/ax_encoder.h",
+      "pristine_sha256": "a6707c2b600e028b1b8cdc9bed4be25e7ab07b16100328b91f436aabcc6b0f35",
+      "output_sha256": "a6707c2b600e028b1b8cdc9bed4be25e7ab07b16100328b91f436aabcc6b0f35",
+      "attribution": "XTARK, copyright notice; no standalone redistribution permission found"
+    },
+    {
+      "output": "Libraries/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h",
+      "pristine_sha256": "ff75367d7528c1f0744069260010bea6cf6601284877c757b775a31c71799285",
+      "output_sha256": "ff75367d7528c1f0744069260010bea6cf6601284877c757b775a31c71799285",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h",
+      "pristine_sha256": "847e95f919effcf6c3cc4be6521ab2ed932b1ef4f0774ca3a6b35c6437b3ae20",
+      "output_sha256": "847e95f919effcf6c3cc4be6521ab2ed932b1ef4f0774ca3a6b35c6437b3ae20",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/CMSIS/Include/core_cm4.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/CMSIS/Include/core_cm4.h",
+      "pristine_sha256": "cc3f6c8186d0a5a33a770f7b70ae168a58a8533266a6f5ccfc807ad309f19240",
+      "output_sha256": "cc3f6c8186d0a5a33a770f7b70ae168a58a8533266a6f5ccfc807ad309f19240",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/CMSIS/Include/core_cmFunc.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/CMSIS/Include/core_cmFunc.h",
+      "pristine_sha256": "ce53e310d8cb2a48e9e50583b36aaf843fecf6154360f75f6a902e5a08f7b43d",
+      "output_sha256": "ce53e310d8cb2a48e9e50583b36aaf843fecf6154360f75f6a902e5a08f7b43d",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/CMSIS/Include/core_cmInstr.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/CMSIS/Include/core_cmInstr.h",
+      "pristine_sha256": "1a1b27e7f61d4c410b14a69d44c584e4d4dd837081f212891c24f8fc71ad5e05",
+      "output_sha256": "1a1b27e7f61d4c410b14a69d44c584e4d4dd837081f212891c24f8fc71ad5e05",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/CMSIS/Include/core_cmSimd.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/CMSIS/Include/core_cmSimd.h",
+      "pristine_sha256": "9bb0ee1883c22b982db9aa662ee712151cb27c6938ecda5ab2ec9df448b7bef0",
+      "output_sha256": "9bb0ee1883c22b982db9aa662ee712151cb27c6938ecda5ab2ec9df448b7bef0",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/misc.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/misc.h",
+      "pristine_sha256": "f5bcb780be886ca3aabdaee6efb8e4c407ca2a70f1eee1630b47c47573e910d3",
+      "output_sha256": "f5bcb780be886ca3aabdaee6efb8e4c407ca2a70f1eee1630b47c47573e910d3",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_adc.h",
+      "pristine_sha256": "7f637d6a45bcb179a7f64b6ab9f134d85a0ec6d1afedb9312baefd4d5642c693",
+      "output_sha256": "7f637d6a45bcb179a7f64b6ab9f134d85a0ec6d1afedb9312baefd4d5642c693",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_can.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_can.h",
+      "pristine_sha256": "429a368a7f7d319d714ba6481c839e1fd1dd22030e0df7c8da488d5c9f17af82",
+      "output_sha256": "429a368a7f7d319d714ba6481c839e1fd1dd22030e0df7c8da488d5c9f17af82",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_crc.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_crc.h",
+      "pristine_sha256": "c274ef7db0c56ccda9c2e2b788e2c696316e906400b85f5560550075103a2ed4",
+      "output_sha256": "c274ef7db0c56ccda9c2e2b788e2c696316e906400b85f5560550075103a2ed4",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_cryp.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_cryp.h",
+      "pristine_sha256": "367b6e90b8cb56ba5ac847e0976c2400985d8e2fbaa87f5e4d575c40fe3fdaec",
+      "output_sha256": "367b6e90b8cb56ba5ac847e0976c2400985d8e2fbaa87f5e4d575c40fe3fdaec",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_dac.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_dac.h",
+      "pristine_sha256": "7545172127fcbefe30f9d7929ca4fb0fdcf21b482bab01fea7be707c999d9c55",
+      "output_sha256": "7545172127fcbefe30f9d7929ca4fb0fdcf21b482bab01fea7be707c999d9c55",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_dbgmcu.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_dbgmcu.h",
+      "pristine_sha256": "452528d6a706e2f7d9f82361fbcaad7c2f9ff515ad27a0cd6cd13886380b51f0",
+      "output_sha256": "452528d6a706e2f7d9f82361fbcaad7c2f9ff515ad27a0cd6cd13886380b51f0",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_dcmi.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_dcmi.h",
+      "pristine_sha256": "b28e90ac940cbe8e086d8062724a4ea9ecdea13d42fbfcf4b7baa2561cb03fb3",
+      "output_sha256": "b28e90ac940cbe8e086d8062724a4ea9ecdea13d42fbfcf4b7baa2561cb03fb3",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_dma.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_dma.h",
+      "pristine_sha256": "bf64bc4109da3c1a376c5199c975d882bd0bcb3daba2b69552f8badc438e74a7",
+      "output_sha256": "bf64bc4109da3c1a376c5199c975d882bd0bcb3daba2b69552f8badc438e74a7",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_exti.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_exti.h",
+      "pristine_sha256": "0edcd926be38ae28bad3acc6d97afe918b7185c9d894ba8e04cb21285bda7671",
+      "output_sha256": "0edcd926be38ae28bad3acc6d97afe918b7185c9d894ba8e04cb21285bda7671",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_flash.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_flash.h",
+      "pristine_sha256": "a96fedf85dbe12cef899be421dc9f3e4843cac4e2db384fa52f41b3b93cd9b5c",
+      "output_sha256": "a96fedf85dbe12cef899be421dc9f3e4843cac4e2db384fa52f41b3b93cd9b5c",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_fsmc.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_fsmc.h",
+      "pristine_sha256": "f7182cc9e6e95a2ad3be3fbaef4bc16841aa6c1421dcf2a37d2f9ac7c0bff1b9",
+      "output_sha256": "f7182cc9e6e95a2ad3be3fbaef4bc16841aa6c1421dcf2a37d2f9ac7c0bff1b9",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h",
+      "pristine_sha256": "109149a5b0af31faeb2f224cbc6935d4ae561336e13c2c1a4a6bf8e64a72a22e",
+      "output_sha256": "109149a5b0af31faeb2f224cbc6935d4ae561336e13c2c1a4a6bf8e64a72a22e",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_hash.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_hash.h",
+      "pristine_sha256": "35eba7111b4b74f6a1942719df7699a5c7bbef25edce733a047abdcad701cdbf",
+      "output_sha256": "35eba7111b4b74f6a1942719df7699a5c7bbef25edce733a047abdcad701cdbf",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_i2c.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_i2c.h",
+      "pristine_sha256": "7fd29a6ab2f4fe3932458b995bc225389846a42a0643572af590dc6dbe597096",
+      "output_sha256": "7fd29a6ab2f4fe3932458b995bc225389846a42a0643572af590dc6dbe597096",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_iwdg.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_iwdg.h",
+      "pristine_sha256": "251f78eeac138f84c98dded6c9a9207a8c701a41599b42c6666d9add3fae2e1b",
+      "output_sha256": "251f78eeac138f84c98dded6c9a9207a8c701a41599b42c6666d9add3fae2e1b",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_pwr.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_pwr.h",
+      "pristine_sha256": "6cff9e2d9e47e12b3e8be7e5631719bfb3ab3eefe147476177834644a36df484",
+      "output_sha256": "6cff9e2d9e47e12b3e8be7e5631719bfb3ab3eefe147476177834644a36df484",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h",
+      "pristine_sha256": "ab01161a0611883706ab281b448cda2e2227aba237e0ccf82b7001395508c67f",
+      "output_sha256": "ab01161a0611883706ab281b448cda2e2227aba237e0ccf82b7001395508c67f",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rng.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rng.h",
+      "pristine_sha256": "528262f3cec49bb403d7b1abd145d82cd6c1f181a1227268145e35edff6de3ad",
+      "output_sha256": "528262f3cec49bb403d7b1abd145d82cd6c1f181a1227268145e35edff6de3ad",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rtc.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rtc.h",
+      "pristine_sha256": "16ad0cafc67bfa9b31cb37f93434cd19eb2fc5c395507337e436de55defd39f3",
+      "output_sha256": "16ad0cafc67bfa9b31cb37f93434cd19eb2fc5c395507337e436de55defd39f3",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_sdio.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_sdio.h",
+      "pristine_sha256": "e6ff9ac805d05dbb8f51c9c8f0097fc4cce0cd15bee14ce7f3ab640ce1795f5e",
+      "output_sha256": "e6ff9ac805d05dbb8f51c9c8f0097fc4cce0cd15bee14ce7f3ab640ce1795f5e",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_spi.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_spi.h",
+      "pristine_sha256": "71e420d95b7e37f843de1f33319541d3771cbf243c4000419207845352f98b8e",
+      "output_sha256": "71e420d95b7e37f843de1f33319541d3771cbf243c4000419207845352f98b8e",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_syscfg.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_syscfg.h",
+      "pristine_sha256": "46969ec7775eb6b0b3f830bdd632cdfecbbc3f6cdaa1289659d2924a4b6fc356",
+      "output_sha256": "46969ec7775eb6b0b3f830bdd632cdfecbbc3f6cdaa1289659d2924a4b6fc356",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_tim.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_tim.h",
+      "pristine_sha256": "f01db08a14c26d260bf08f0301d6aa70713a7b885518ebbf7b640337e8007f66",
+      "output_sha256": "f01db08a14c26d260bf08f0301d6aa70713a7b885518ebbf7b640337e8007f66",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h",
+      "pristine_sha256": "0a100560379e35d172b24fa8bacf8d15df3949734ce906ee70e99f7d336aff90",
+      "output_sha256": "0a100560379e35d172b24fa8bacf8d15df3949734ce906ee70e99f7d336aff90",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_wwdg.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_wwdg.h",
+      "pristine_sha256": "f8d23f14507283f36bb09d0b13c48dcccf6300c097ad626669ac58ff7c2668bd",
+      "output_sha256": "f8d23f14507283f36bb09d0b13c48dcccf6300c097ad626669ac58ff7c2668bd",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/src/misc.c",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/src/misc.c",
+      "pristine_sha256": "bf3a4d333928490c0f7b110ab9e8894cd8d90d26598e9e7de1ed736a65bb48fc",
+      "output_sha256": "bf3a4d333928490c0f7b110ab9e8894cd8d90d26598e9e7de1ed736a65bb48fc",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c",
+      "pristine_sha256": "533762cfd2fb8830a35bf88a47da9ce26f036a3feac2afb055848edbd9388009",
+      "output_sha256": "533762cfd2fb8830a35bf88a47da9ce26f036a3feac2afb055848edbd9388009",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rcc.c",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rcc.c",
+      "pristine_sha256": "5130292c7c86dd0e29a586f4cc51b8a9cffaee834164ef4237dd2fa260b4caac",
+      "output_sha256": "5130292c7c86dd0e29a586f4cc51b8a9cffaee834164ef4237dd2fa260b4caac",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c",
+      "pristine_sha256": "efbfdd00667befde06e1ac6a674454224c94fc6cbd8b5e706fb301504779c8ef",
+      "output_sha256": "efbfdd00667befde06e1ac6a674454224c94fc6cbd8b5e706fb301504779c8ef",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Robot/stm32f4xx_conf.h",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Robot/stm32f4xx_conf.h",
+      "pristine_sha256": "9cfa6d1316a3d67b164fc35b82b44655cef4382b5e82df65cdc79d393b345f50",
+      "output_sha256": "9cfa6d1316a3d67b164fc35b82b44655cef4382b5e82df65cdc79d393b345f50",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "Robot/system_stm32f4xx.c",
+      "archive": "OpenCTR_H60V36_R750ROS_V3.61.0602.zip",
+      "archive_sha256": "6a36aef2c955ad8132288dd94116e89afbedb8a0baf7b97162d3b7d2a6ea1c48",
+      "member": "OpenCTR_H60V36_R750ROS_V3.61.0602/Robot/system_stm32f4xx.c",
+      "pristine_sha256": "fe29f6c9e0d5a9e635b9a29518d11c4778ce35208299240e1adddd1408aaf6d9",
+      "output_sha256": "fe29f6c9e0d5a9e635b9a29518d11c4778ce35208299240e1adddd1408aaf6d9",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2 / ARM CMSIS notices; see source headers"
+    },
+    {
+      "output": "build_support/startup_stm32f407ve.s",
+      "archive": "OpenCTR_H60V37_Basis_Demo_V1.4.0.zip",
+      "archive_sha256": "e3b695d53ccb134600c1040b5ee1290ae1cf4ab143c11233576510339dd4bfa5",
+      "member": "OpenCTR_H60V37_Basis_Demo_V1.4.0/Libraries/CMSIS/Device/ST/STM32F4xx/Source/Templates/SW4STM32/startup_stm32f40_41xxx.s",
+      "pristine_sha256": "d1ee325abd6a8aa04aecb19c52682c0376134b1210b34783696ba5f558a57a1e",
+      "output_sha256": "262131e0460571eed3049dc416df3848271e61dc6584fee09cdd09c531bdaf42",
+      "transform": "startup-fatal-stop-v1",
+      "attribution": "STMicroelectronics MCD-ST Liberty V2; local default-handler change by this project"
+    }
+  ]
+}

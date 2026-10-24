@@ -72,3 +72,9 @@ Las pruebas offline del host cubren pérdida de heartbeat, caducidad que no se r
 Las herramientas ROM portables incorporadas al preparar el repositorio se validaron con una ROM simulada. No se repitieron identificación, copia ni grabación físicas durante ese empaquetado. El BIN de aplicación reconstruido sí coincide byte a byte con el de 7132 bytes empleado en las tres rondas físicas.
 
 Para reproducir la verificación actual, seguir [bring-up](bring-up.md). Para ampliar el proyecto hacia autonomía hay trabajo pendiente de geometría, control de velocidad, odometría, sensores y supervisión.
+
+## Control web temporal
+
+Con perfil 5 se validó un recorrido completo WebSocket autenticado → servidor → USB-DEBUG → H60 y STOP. Una pulsación breve de avance produjo deltas A/B/C/D `[-341,+385,-357,+346]`; retroceso produjo `[+307,-382,+294,-208]`. Ambas terminaron paradas y la sesión quedó en IDLE, sin una orden sostenida. No se guardan aquí claves, puertos personales ni registros crudos.
+
+El nuevo flujo portable de recuperación y carga también obtuvo dos lecturas reales concordantes de 512 KiB y verificó la carga completa del perfil 5. La validación eléctrica de corriente, tensión y tiempos exactos sigue fuera del alcance de estos resultados.

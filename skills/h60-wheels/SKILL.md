@@ -15,8 +15,10 @@ Para una orden eléctrica positiva conocida, `motor_sign = encoder_sign * sign(d
 
 Ejecuta movimientos solo dentro de la petición activa y con las condiciones físicas conocidas: ruedas elevadas, chasis estable, sin manos en las ruedas y corte accesible. No pidas confirmar de nuevo la misma autorización de una sesión. Anuncia duración y sentido antes de actuar. Si falta un dato físico necesario, pregunta solo por ese dato.
 
-El cliente actual verifica perfil/descriptor/nonce y un disparo por arranque. Durante los 3 s renueva el heartbeat aproximadamente cada 20 ms; la aplicación caduca a 100 ms. Para repetir por petición expresa se necesita un arranque nuevo controlado; un reset no es permiso para repetir automáticamente.
+El cliente de la prueba de 3 s verifica perfil/descriptor/nonce y un disparo por arranque. Durante los 3 s renueva el heartbeat aproximadamente cada 20 ms; la aplicación caduca a 100 ms. Para repetir por petición expresa se necesita un arranque nuevo controlado; un reset no es permiso para repetir automáticamente.
 
 Los encoders son uint16. En una prueba larga sigue muestras frecuentes para resolver wraps y detectar saltos, no apliques el límite de media vuelta del ensayo corto. Guarda observación visual si existe; no la inventes ni obligues a ocho nuevas pruebas manuales cuando las referencias ya son válidas.
 
 Al acabar comprueba DONE, salidas bajas según registros y encoders estabilizados. Esto no certifica tensión/corriente ni duración eléctrica. La prueba fija tampoco valida PID, odometría o conducción autónoma.
+
+Para la web temporal lee `web/README.md` y `firmware/manual-hold/README.md`: perfil 5 con MOVE/STOP reutilizables, heartbeat de navegador, lease serie de 150 ms y límite absoluto de 10 s. No lo trates como un FIRE de perfil 4 ni fuerces resets entre pulsaciones normales. Un fallo serie queda bloqueado; no reanudes una pulsación vieja tras reconectar o alcanzar el límite. Verifica UI contra simulación; acceder a una página de QA no autoriza a mover una placa real.

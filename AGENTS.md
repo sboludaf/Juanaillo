@@ -20,6 +20,7 @@ Abre solo la skill pertinente; sus rutas son relativas a este repositorio y func
 - El bootloader ROM se identificó como 0x31/PID0x0413 y 512 KiB. Obtén identidad/tamaño de la unidad presente, sin fijar su UID en código o planes públicos.
 - A/B/C/D fueron trasera derecha / trasera izquierda / delantera derecha / delantera izquierda en el R5 ensayado. El ejemplo usa encoder_sign `[-1,+1,-1,+1]` y motor_sign `[+1,-1,+1,-1]`. Revalidar en otro montaje; no deducir un signo del otro.
 - `forward-3s` aplica la inversión B/D en el PWM. El antiguo ensayo con dirección eléctrica positiva en los cuatro no lo hacía: confundir ambos produciría giro contrario en las izquierdas.
+- La web temporal usa `firmware/manual-hold`, perfil 5: MOVE/STOP reutilizables, lease 150 ms y límite absoluto 10 s hasta soltar y pulsar de nuevo. No aplicar su protocolo al perfil 4 de 3 s. No hay movimiento automático al abrir la web; una sesión autenticada debe mantener una pulsación vigente.
 - Los 3 segundos se cortan por software ISR/DWT, con IWDG y caducidad de órdenes como respaldo. No describirlo como un corte eléctrico certificado o un temporizador autónomo de 3 s.
 - La toolchain, las pruebas, la importación de fuentes y la lectura de archivos no deben abrir puertos serie. No añadas movimiento al conectar USB, descubrir el dispositivo, arrancar o compilar.
 

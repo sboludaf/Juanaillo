@@ -7,3 +7,5 @@ This is a foundation for future **autonomous driving**, rather than a finished n
 Start with [hardware](docs/hardware.md), [bring-up](docs/bring-up.md), [firmware preparation](firmware/README.md), and [tested results](docs/tested-results.md). The measured 1561 counts/revolution and motor signs are an example from one assembly, not universal board defaults. Read [AGENTS.md](AGENTS.md) for agent instructions and the bundled skills.
 
 Only original project code is included. Manufacturer/ARM/ST dependencies are imported locally after checksum verification, never bundled as unlicensed archives or device flash dumps. Private board identity, network settings and credentials are excluded. See [THIRD_PARTY.md](THIRD_PARTY.md).
+
+A temporary [local web controller](web/README.md) provides hold-to-run Forward/Reverse controls. It requires the distinct `manual-hold` firmware; release, disconnect, stale input and maximum-hold limits stop motion. This is a diagnostic interface, not autonomous navigation.

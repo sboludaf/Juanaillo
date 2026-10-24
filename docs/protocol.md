@@ -102,3 +102,7 @@ Los cuatro canales usan corte software DWT/ISR/bucle y un IWDG de respaldo. La e
 El host acumula deltas de muestras sucesivas con aritmética modular de 16 bits, usando el tiempo del firmware. Rechaza saltos incompatibles con 10000 cuentas/s, huecos de más de 250 ms y totales absolutos mayores de 32767. No aplica el antiguo límite de media vuelta: un ensayo de tres segundos puede acumular miles de cuentas.
 
 Con los signos manuales `[-1,+1,-1,+1]`, sólo declara `forward-verified` cuando los cuatro totales normalizados son positivos y de al menos ocho cuentas. Un resultado inverso o inconcluso no provoca otra prueba ni modifica un perfil físico. Se guardan muestras raw y resultado en un directorio nuevo; los registros reales permanecen fuera del repositorio público.
+
+## Control temporal perfil 5
+
+El controlador web utiliza un protocolo distinto del perfil 4 descrito arriba. Sus especificaciones y límites están en [web/README.md](../web/README.md) y [firmware/manual-hold/README.md](../firmware/manual-hold/README.md): MOVE `0x77` con nonce64+dirección int8, STATUS de44bytes y STOP reutilizable. El backend rechaza perfiles incompatibles; no adapta silenciosamente un firmware antiguo.

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="referrer" content="no-referrer">
+    <title>Juanaillo · Control H60</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <main class="controller" aria-labelledby="instructions">
+      <header class="header">
+        <span class="brand">Juanaillo</span>
+        <div class="connection" data-state="offline" role="status">
+          <span class="connection-dot" aria-hidden="true"></span>
+          <span id="connection-label">Sin conexión</span>
+        </div>
+      </header>
+
+      <h1 id="instructions">Mantén pulsado.<br>Suelta para parar.</h1>
+
+      <div class="controls" aria-label="Dirección del movimiento">
+        <button class="direction direction-forward" type="button" data-direction="forward"
+          aria-label="Avance: mantener pulsado para mover, soltar para parar" aria-pressed="false" disabled>
+          <svg class="direction-arrow" viewBox="0 0 72 88" fill="none" aria-hidden="true">
+            <path d="M36 80V10M10 36L36 10L62 36"/>
+          </svg>
+          <span class="direction-label">Avance</span>
+          <span class="key-hint" aria-hidden="true">↑</span>
+        </button>
+        <button class="direction direction-reverse" type="button" data-direction="reverse"
+          aria-label="Retroceso: mantener pulsado para mover, soltar para parar" aria-pressed="false" disabled>
+          <svg class="direction-arrow" viewBox="0 0 72 88" fill="none" aria-hidden="true">
+            <path d="M36 8V78M10 52L36 78L62 52"/>
+          </svg>
+          <span class="direction-label">Retroceso</span>
+          <span class="key-hint" aria-hidden="true">↓</span>
+        </button>
+      </div>
+
+      <p class="motion-status" id="motion-status" role="status" aria-live="polite">Conectando con el controlador…</p>
+    </main>
+  </body>
+</html>
