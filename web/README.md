@@ -72,6 +72,8 @@ El servidor imprime un enlace con una clave efímera en el fragmento `#token=...
 
 El enlace mostrado permite controlar motores: compártelo únicamente con el operador previsto. La interfaz mantiene los controles deshabilitados si falta autenticación, conexión, estado válido o si hay un fallo.
 
+Si apagas la H60 con el servidor en marcha, el error serie queda bloqueado aunque vuelvas a encenderla o recargues la web. Con la placa encendida, reinicia explícitamente el servidor y abre el enlace nuevo que imprima: el reinicio cambia la clave y el enlace nuevo sustituye la anterior guardada en el navegador. Un ciclo de alimentación normal no requiere volver a cargar el firmware.
+
 ## Pruebas
 
 ```bash
@@ -79,4 +81,4 @@ python -m unittest discover -s web -p 'test_*.py' -v
 make -C firmware/manual-hold test
 ```
 
-Las pruebas automáticas usan un dispositivo simulado o un transporte falso. Las comprobaciones de navegador se hacen contra `--simulate`, no contra una placa real. Durante la puesta en marcha del perfil 5 se comprobaron también una orden breve real de avance, otra de retroceso y STOP mediante WebSocket, con cuatro encoders de signo coherente y estado final de reposo. La ampliación a giros del perfil 6 tiene validación offline; todavía requiere cargar esa imagen y comprobar físicamente los giros.
+Las pruebas automáticas usan un dispositivo simulado o un transporte falso. Las comprobaciones de navegador se hacen contra `--simulate`, no contra una placa real. Durante la puesta en marcha del perfil 5 se comprobaron también una orden breve real de avance, otra de retroceso y STOP mediante WebSocket, con cuatro encoders de signo coherente y estado final de reposo. El perfil 6 se cargó y verificó con readback completo; se comprobó conexión real, descriptor, WebSocket autenticado y STOP/IDLE sin enviar MOVE. Los giros tienen validación offline y todavía requieren comprobación motriz.
