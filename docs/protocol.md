@@ -1,5 +1,7 @@
 # Protocolo del banco de avance de tres segundos
 
+Para el controlador actual de cuatro botones usa **`manual-hold`, perfil 6**: [comunicación desde un ordenador](communication.md), [ejemplo Python](../examples/README.md) y [contrato del firmware](../firmware/manual-hold/README.md#wire-contract). Su STATUS tiene 44 bytes de payload, frente a los 36 del perfil 4 descrito en esta página. No intercambies sus clientes ni sus secuencias.
+
 Este contrato corresponde al perfil **4** y al marcador `H60_FORWARD3S_SINGLE_SHOT_V1`. Ejecuta una sola secuencia fija por arranque: cuatro motores, direcciones `[+1, −1, +1, −1]`, PWM diferencial del 10 % a 5 kHz durante 3000 ms. No ofrece órdenes de velocidad, armado general, teleoperación ni navegación autónoma.
 
 ## Transporte y trama

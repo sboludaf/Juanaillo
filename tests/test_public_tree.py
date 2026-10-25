@@ -23,6 +23,10 @@ class PublicTreeTests(unittest.TestCase):
     def test_binary_and_backup_paths_are_blocked(self):
         self.assertTrue(MODULE.inspect_content('backups/flash.bin', b'\x80'))
 
+    def test_private_results_stay_blocked_with_legacy_directory_spelling(self):
+        for directory in ('.local', '..local'):
+            self.assertTrue(MODULE.inspect_content(directory + '/identity/result.json', b'{}'))
+
     def test_public_hardware_data_and_hashes_are_allowed(self):
         text = 'STM32F407VE 512 KiB; PID 0x0413; sha256=' + 'a' * 64
         self.assertEqual(MODULE.inspect_content('docs/hardware.md', text.encode()), [])

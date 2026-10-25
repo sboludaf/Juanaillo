@@ -1,5 +1,20 @@
 # Validación del repositorio preparado para publicación
 
+## Recorrido ordenador → placa, 25 de octubre de 2026
+
+- `make check`: 114 pruebas Python (30 de herramientas/privacidad y ejemplo de comunicación, 14 del importador y diagnóstico USB, 35 del host y 35 de la web), además de los grupos nativos de firmware y commissioning. Todas pasan sin abrir puertos serie.
+- El diagnóstico usa metadatos USB, permisos, enlaces de descriptores de procesos visibles y consultas de versión. Las ocho pruebas nuevas cubren adaptadores, driver asociado, ausencia de TTY, permisos de inspección, dispositivos que desaparecen y omisión de números de serie. No se instala ningún driver desde las pruebas.
+- Las once pruebas del ejemplo verifican el modo serie offline, hash y perfil antes de abrir, envío exclusivo de INFO/STATUS, cierre sin repetición y HTTP de lectura sin reclamar control ni seguir redirecciones. El contrato serie se ensaya con transporte simulado, no con una placa real.
+- Revisión independiente de los comandos y de los argumentos de la guía: separación de ROM, carga, arranque y consulta; hashes del plan, resultado y manifiesto; ruta principal de perfil 6 y exclusividad del puerto. Los enlaces Markdown relativos resuelven.
+- Se exportó el árbol publicable a una carpeta temporal limpia, sin dependencias importadas, builds ni archivos privados. `make check` pasó también allí. Después se importaron los 41 archivos originales verificados para cada build y se compilaron `manual-hold` y `forward-3s` con GNU Arm 14.2.1 y newlib local.
+- El BIN de `manual-hold` reconstruido en esa copia tiene **7444 bytes** y SHA256 `2f742d7f3f479d744e8ded4b70657313c9477230b02d565ea1c0082b5e0898a2`: coincide con la imagen de la corrección anterior. El ejemplo serie validó ese build en dry-run con un puerto ficticio, sin abrirlo.
+- Las fuentes oficiales de drivers WCH y su selección se documentan por sistema. No se afirma una instalación o prueba física nueva en Windows/macOS y no se redistribuyen instaladores sin términos verificados.
+- La revisión de árbol e historial no encontró los patrones configurados de datos privados. Se corrigieron las rutas de ejemplo a `.local/`; la grafía antigua también queda excluida y bloqueada por el comprobador público.
+
+No se ha grabado, reiniciado ni movido una placa durante esta ampliación de documentación. La evidencia física anterior se conserva separada en las secciones siguientes y en [resultados reales](tested-results.md).
+
+## Historial de validación anterior
+
 Comprobación realizada el 24 de octubre de 2026, sin abrir puertos serie ni mover hardware durante el empaquetado.
 
 - `make check`: 18 pruebas Python de herramientas/privacidad, 6 del importador y 35 del host, además de los grupos nativos de firmware y commissioning. Todas pasan.

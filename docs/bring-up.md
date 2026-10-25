@@ -1,6 +1,6 @@
 # Puesta en marcha del banco H60
 
-Esta guía cubre el **banco de pruebas de avance fijo durante tres segundos**. Para el control temporal de cuatro botones consulta [la web local](../web/README.md), que requiere otro firmware y protocolo. El objetivo futuro es conducción autónoma, pero esta imagen no implementa navegación, regulación de velocidad ni una interfaz de conducción continua. La [referencia de hardware](hardware.md) y los [resultados](tested-results.md) corresponden a una sola unidad.
+Esta guía cubre el **banco de pruebas de avance fijo durante tres segundos**. Si empiezas con un ordenador y una placa, sigue primero la [guía de inicio del perfil 6](getting-started.md), que reúne drivers, respaldo, compilación, carga y comunicación para los cuatro botones. No es necesario cargar este perfil 4 antes del perfil 6. El objetivo futuro es conducción autónoma, pero esta imagen no implementa navegación, regulación de velocidad ni una interfaz de conducción continua. La [referencia de hardware](hardware.md) y los [resultados](tested-results.md) corresponden a una sola unidad.
 
 ## Preparar software sin conectar hardware
 

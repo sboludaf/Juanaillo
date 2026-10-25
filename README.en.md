@@ -4,7 +4,7 @@ Juanaillo provides practical, Spanish-first documentation and portable tooling f
 
 This is a foundation for future **autonomous driving**, rather than a finished navigation stack. It provides USB bootloader access, verified backups, limited flashing, encoder calibration, and a single-shot three-second forward bench test with heartbeat timeout and STOP.
 
-Start with [hardware](docs/hardware.md), [bring-up](docs/bring-up.md), [firmware preparation](firmware/README.md), and [tested results](docs/tested-results.md). The measured 1561 counts/revolution and motor signs are an example from one assembly, not universal board defaults. Read [AGENTS.md](AGENTS.md) for agent instructions and the bundled skills.
+Start with the [PC-to-board walkthrough](docs/getting-started.md), [official USB drivers](docs/usb-drivers.md), [Python communication example](examples/README.md), and [troubleshooting](docs/troubleshooting.md) (Spanish). The main path builds and loads manual-hold profile 6 directly; it does not require the older profile-4 three-second test first. USB-driver instructions for Windows/macOS do not imply physically validated flashing/control on those systems. The measured 1561 counts/revolution and motor signs are an example from one assembly, not universal board defaults. Read [AGENTS.md](AGENTS.md) for agent instructions and the bundled skills.
 
 Only original project code is included. Manufacturer/ARM/ST dependencies are imported locally after checksum verification, never bundled as unlicensed archives or device flash dumps. Private board identity, network settings and credentials are excluded. See [THIRD_PARTY.md](THIRD_PARTY.md).
 

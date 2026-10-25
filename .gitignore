@@ -1,5 +1,7 @@
 # Private machine/board data and credentials
 .local/
+# Older documentation used this spelling; keep past runs private as well.
+..local/
 private/
 backups/
 runs/

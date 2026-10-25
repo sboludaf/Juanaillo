@@ -21,3 +21,9 @@ Las secuencias, interfaces y observaciones técnicas se documentan como hechos d
 ## Dependencias de ejecución
 
 Python y la toolchain GNU Arm se instalan por separado. `pyserial` se instala como dependencia, no se copia dentro de este repositorio. Consulta sus términos en sus respectivas distribuciones.
+
+## Drivers USB del ordenador
+
+`drivers/README.md` y `docs/usb-drivers.md` indican los drivers de los adaptadores CH340 y CH9102 y enlazan a las páginas oficiales de WCH. No se copian instaladores propietarios sin una autorización de redistribución identificada. Linux utiliza los módulos de su propio kernel; Windows y macOS tienen instrucciones y descargas oficiales. Instalar el driver del ordenador es distinto de cargar el firmware del STM32.
+
+El diagnóstico USB y el ejemplo de consulta son código propio del proyecto. No incluyen código de los drivers de WCH ni requieren ejecutar instaladores descargados para funcionar en modo offline.

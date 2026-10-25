@@ -2,6 +2,8 @@
 
 Este repositorio documenta una H60 V3.7 real. El objetivo futuro es conducción autónoma; el estado actual es puesta en marcha y firmware de banco. Lee primero `README.md`, `docs/hardware.md` y `docs/tested-results.md`. Usa las instrucciones del usuario de la sesión para concretar el trabajo, sin inferir autorización para publicar ni mover hardware por el mero hecho de abrir el repositorio.
 
+Para acompañar a un usuario desde un ordenador recién preparado, sigue `docs/getting-started.md`; para diagnóstico USB sin abrir puertos, `scripts/h60_doctor.py`. La comunicación de consulta del perfil 6 está en `examples/h60_status.py` y `docs/communication.md`. El recorrido principal no requiere cargar antes el perfil 4.
+
 ## Skills del proyecto
 
 Abre solo la skill pertinente; sus rutas son relativas a este repositorio y funcionan sin instalar nada globalmente.

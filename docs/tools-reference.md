@@ -14,7 +14,7 @@ ni comando ROM `GO`.
 
 ## Datos locales
 
-Guardar identidades, imágenes leídas, planes y resultados bajo `..local/`, excluido
+Guardar identidades, imágenes leídas, planes y resultados bajo `.local/`, excluido
 de Git. Esos archivos pueden contener el UID necesario para asociar un backup
 con su MCU. Los resúmenes de consola omiten el UID. No publicar esos registros ni
 sus binarios sin revisarlos. Los UID de las pruebas se generan como datos
@@ -31,7 +31,7 @@ modificar una entrada exige generar y revisar otro plan.
 python3 tools/h60_recovery.py ports
 mkdir -p .local
 python3 tools/h60_recovery.py identify \
-  --port /dev/ttyUSB0 --out-dir ..local/identity-01 --entry inverted-both
+  --port /dev/ttyUSB0 --out-dir .local/identity-01 --entry inverted-both
 ```
 
 La última orden es offline. Añadir `--execute` solicita la operación indicada.
@@ -62,7 +62,7 @@ en el banco y no dispone de HUPCL POSIX.
 ```sh
 python3 tools/h60_recovery.py inspect firmware/forward-3s/build/h60-forward-3s.bin
 python3 tools/h60_recovery.py backup \
-  --port /dev/ttyUSB0 --out-dir ..local/backup-01 --entry inverted-both
+  --port /dev/ttyUSB0 --out-dir .local/backup-01 --entry inverted-both
 ```
 
 Con `--execute`, `backup` identifica el MCU y obtiene dos lecturas completas de
@@ -85,7 +85,7 @@ No está implementada una restauración de fábrica que borre sectores adicional
 python3 tools/h60_flash.py plan \
   --image firmware/forward-3s/build/h60-forward-3s.bin \
   --manifest firmware/forward-3s/build/manifest.json \
-  --baseline ..local/backup-01 --output ..local/flash-plan.json \
+  --baseline .local/backup-01 --output .local/flash-plan.json \
   --port /dev/ttyUSB0 --entry inverted-both
 ```
 
@@ -94,8 +94,8 @@ ese JSON y usar su hash concreto en la siguiente orden:
 
 ```sh
 python3 tools/h60_flash.py apply \
-  --plan ..local/flash-plan.json --plan-sha256 SHA256_DEL_PLAN_REVISADO \
-  --out-dir ..local/flash-01
+  --plan .local/flash-plan.json --plan-sha256 SHA256_DEL_PLAN_REVISADO \
+  --out-dir .local/flash-01
 ```
 
 El valor `SHA256_DEL_PLAN_REVISADO` es un marcador que debe sustituirse. Sin
@@ -119,7 +119,7 @@ como dos lecturas independientes:
 
 ```sh
 python3 tools/h60_recovery.py baseline \
-  --flash-result ..local/flash-01/result.json --out-dir ..local/baseline-next
+  --flash-result .local/flash-01/result.json --out-dir .local/baseline-next
 ```
 
 Esta operación copia y verifica el resultado y readback completos de una carga
@@ -134,7 +134,7 @@ resultado y su readback completos:
 
 ```sh
 python3 tools/h60_boot.py \
-  --flash-result ..local/flash-01/result.json --result-sha256 SHA256_DEL_RESULTADO \
+  --flash-result .local/flash-01/result.json --result-sha256 SHA256_DEL_RESULTADO \
   --port /dev/ttyUSB0
 ```
 

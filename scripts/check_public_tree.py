@@ -8,7 +8,7 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-FORBIDDEN_DIRS = {'.local', 'private', 'backups', 'runs', 'vendor', '.venv', '__pycache__'}
+FORBIDDEN_DIRS = {'.local', '..local', 'private', 'backups', 'runs', 'vendor', '.venv', '__pycache__'}
 FORBIDDEN_SUFFIXES = {'.bin', '.hex', '.elf', '.o', '.map', '.zip', '.7z', '.jpg', '.jpeg', '.png', '.pem', '.key', '.p12', '.pfx'}
 PATTERNS = {
     'private key': re.compile(r'-----BEGIN (?:[A-Z]+ )?PRIVATE KEY-----'),
