@@ -4,6 +4,8 @@ Esta es la ruta principal para una **OpenCTR H60 V3.7 con STM32F407VE de 512 KiB
 
 El recorrido separa operaciones: preparar software → identificar USB → respaldar el firmware original → compilar → revisar y cargar → arrancar → consultar estado. No es necesario instalar primero el firmware antiguo de avance de tres segundos.
 
+**No se instala ni se ejecuta una aplicación de control del fabricante.** Usamos nuestras herramientas Python y nuestro firmware. El ZIP original aporta archivos fuente para preparar el build; no es un instalador ni hace falta conservarlo para cada sesión una vez importadas sus dependencias. Los clientes USB de esta guía verifican también el manifiesto, los artefactos y las fuentes locales del build. Si ese build ya está preparado y el firmware correcto está cargado, no hay que repetir la importación, compilación o carga en cada uso. Para consultar un servidor que ya funciona, el cliente HTTP puede utilizarse sin esos archivos de build.
+
 | Plataforma | Alcance de esta guía |
 | --- | --- |
 | Linux | Ruta de compilación y comunicación comprobada en la H60 del proyecto. Los comandos siguientes usan una shell Linux. |

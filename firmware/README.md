@@ -6,7 +6,9 @@ Hay tres entregas con alcances distintos:
 - [manual-hold](manual-hold/README.md): aplicación para la web local temporal, perfil 6 con avance, retroceso y giros sobre el sitio al 10 %, lease de 150 ms y máximo 10 s por pulsación. STOP permite una nueva pulsación; los fallos quedan bloqueados. Requiere actualizar el perfil 5 anterior y es un protocolo distinto de `forward-3s`.
 - [commissioning](commissioning/README.md): módulos y pruebas propios de puesta en marcha, seguridad, control e IMU. No es una aplicación ARM completa: se excluyeron las integraciones del fabricante cuya redistribución no está establecida.
 
-## Preparar dependencias
+## Preparar las fuentes del build
+
+Este paso prepara archivos para compilar y verificar el firmware; **no instala una aplicación del fabricante en el ordenador**. El funcionamiento usa las herramientas Python propias. Si las fuentes ya están importadas y el build está preparado, el ZIP original no vuelve a pedirse para cada sesión. La ruta USB actual valida el manifiesto, los artefactos y sus fuentes locales; conserva ese conjunto de archivos, no solo el BIN.
 
 Obtén del fabricante o vendedor el paquete de código **OpenCTR H60 code.zip** de la revisión indicada en el [lock de dependencias](forward-3s/vendor-lock.json). No basta con un firmware de fábrica ni con el paquete antiguo TB6612. Pide el paquete de ejemplos STM32 de H60 V3.7 si el vendedor ofrece varios recursos.
 

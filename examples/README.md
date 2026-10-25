@@ -4,6 +4,8 @@
 
 Ejecuta los comandos desde la raíz del repositorio. La preparación completa está en [la guía de inicio](../docs/getting-started.md).
 
+No se necesita instalar ni ejecutar una aplicación del fabricante. Para la consulta directa por USB, este ejemplo verifica el manifiesto, los artefactos y las fuentes locales del build ya preparado; no lee el ZIP original ni lo exige de nuevo tras importarlo. La consulta HTTP a un servidor ya operativo no necesita el build en el ordenador cliente.
+
 ## Si el servidor web ya está en marcha
 
 No abras su puerto serie desde un segundo programa. Consulta su API de lectura:

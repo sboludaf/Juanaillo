@@ -6,6 +6,10 @@ El objetivo del proyecto es servir de base para **conducción autónoma**. Actua
 
 [Empieza aquí: ordenador → placa](docs/getting-started.md) · [Drivers USB](docs/usb-drivers.md) · [Problemas y soluciones](docs/troubleshooting.md) · [English overview](README.en.md)
 
+**No hace falta instalar ni ejecutar una aplicación de OpenCTR/XTARK para manejar la placa.** La recuperación, la comunicación USB y el control se realizan con las herramientas Python de este repositorio y nuestro firmware. El driver USB del ordenador es un componente distinto.
+
+Las fuentes de ST/ARM y las rutinas importadas del paquete original son dependencias para preparar y verificar el build, no un programa del fabricante que deba mantenerse instalado o en ejecución. Una vez importadas, no se vuelve a necesitar el ZIP para cada uso. La ruta USB actual comprueba el manifiesto, los artefactos y sus fuentes locales; una copia nueva debe preparar ese build. Consultar por HTTP un servidor ya operativo no requiere esos archivos en el ordenador cliente.
+
 ## Del ordenador a la placa
 
 La [guía de inicio](docs/getting-started.md) reúne el recorrido completo para preparar el ordenador, identificar USB-DEBUG, preservar el firmware original, compilar y cargar `manual-hold` perfil 6 y comprobar la comunicación antes de conectar motores. Es la ruta principal para llegar al control de cuatro botones; no exige cargar primero el ensayo antiguo de tres segundos.

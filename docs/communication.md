@@ -2,6 +2,8 @@
 
 El recorrido de instalación y carga está en [la guía de inicio](getting-started.md). Esta página explica cómo comprobar que tu programa habla con la aplicación correcta. Usa [el ejemplo Python](../examples/README.md) para una primera consulta sin órdenes de motor.
 
+La comunicación utiliza las herramientas Python de este repositorio: no necesita una aplicación de control de OpenCTR/XTARK instalada o en ejecución. El ejemplo USB y el servidor comprueban el build local completo, incluidas sus fuentes importadas; esa comprobación no implica instalar un programa del fabricante. El cliente HTTP solo necesita poder acceder al servidor que ya tiene la conexión USB.
+
 ## Elegir puerto, firmware y protocolo
 
 En la H60 V3.7 ensayada, el controlador de este repositorio usa **USB-DEBUG → CH340 → USART1 PA9/PA10**. USB-COM lleva otro adaptador y llega a USART3: no es un puerto alternativo para el mismo protocolo. Los [drivers USB](usb-drivers.md) permiten que aparezca el puerto; no instalan ni cambian el firmware del STM32.
